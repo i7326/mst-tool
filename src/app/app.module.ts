@@ -1,16 +1,26 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MaterialModule } from '@angular/material';
+import { FlexLayoutModule } from "@angular/flex-layout";
+import { PSService } from './ps.service';
 import { AppComponent } from './app.component';
+import { HomeComponent } from './pages/home/home.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FormsModule,
+    BrowserAnimationsModule,
+    FlexLayoutModule,
+    MaterialModule
   ],
-  providers: [],
+  providers: [PSService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

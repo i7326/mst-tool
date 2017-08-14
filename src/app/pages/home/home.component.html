@@ -1,0 +1,39 @@
+<div class="container">
+  <div class="header">
+  </div>
+  <div fxLayout="row wrap" class="main">
+    <div fxFlex="70%">
+      <md-input-container class="width-90-pt">
+        <input mdInput placeholder="Product Name" disabled value="{{msi.ProductName}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="30%" fxLayoutAlign="end center">
+      <md-input-container class="width-90-pt">
+        <input mdInput placeholder="Version" disabled value="{{msi.ProductVersion}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="50%">
+      <md-input-container class="width-90-pt">
+        <input mdInput placeholder="Manufacturer" disabled value="{{msi.Manufacturer}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="50%" fxLayoutAlign="end center">
+      <md-input-container>
+        <input mdInput placeholder="Language" disabled value="{{msi.ProductLanguage}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="80%">
+      <md-input-container class="width-90-pt">
+        <input mdInput placeholder="Installer" disabled value="{{filename}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="20%"><a md-raised-button color="primary" (click)="browseMsi()">Select MSI</a></div>
+    <div fxFlex="grow" fxLayoutAlign="space-around center">
+      <md-input-container class="width-90-pt">
+        <input mdInput placeholder="Package Name" value="{{msi.PackageName}}">
+      </md-input-container>
+    </div>
+    <div fxFlex="60%"><md-checkbox [(ngModel)]="checkBoxValue" [disabled]="!msi.PackageName">Proceed to create Transform</md-checkbox></div>
+    <div fxFlex="40%" fxLayoutAlign="space-around center"><a md-raised-button color="primary" (click)="openSnackbar(checkBoxValue)" [disabled]="!checkBoxValue">Generate Transform</a></div>
+  </div>
+</div>
