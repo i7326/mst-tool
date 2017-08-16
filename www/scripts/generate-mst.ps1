@@ -23,6 +23,7 @@ Param (
 	PwCPackageName = $PackageName
 	PwCLang = $PropertyList[3]
 	PwCRelease = $PropertyList[4]
+    ARPCOMMENTS = $PackageName
 }
 
 $TempMSIPath = "$((New-Item -ItemType Directory -Path "$env:Temp\MST-Tool\$PackageName" -Force).FullName)\$((Get-Item $Path).Name)"
