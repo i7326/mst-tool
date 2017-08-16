@@ -23,7 +23,7 @@ Param (
 	PwCPackageName = $PackageName
 	PwCLang = $PropertyList[3]
 	PwCRelease = $PropertyList[4]
-    ARPCOMMENTS = $PackageName
+	ARPCOMMENTS = $PackageName
 }
 
 $TempMSIPath = "$((New-Item -ItemType Directory -Path "$env:Temp\MST-Tool\$PackageName" -Force).FullName)\$((Get-Item $Path).Name)"
@@ -94,7 +94,7 @@ try{
 	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
 } catch { }
 
-Copy-Item $Path -Destination "$FinalPath\$($PackageName –Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
+Copy-Item $Path -Destination "$FinalPath\$($PackageName ï¿½Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
 
 Remove-Item (Get-Item $TempMSIPath).Directory -Force -Recurse -ErrorAction SilentlyContinue
 
