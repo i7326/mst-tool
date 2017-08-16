@@ -94,34 +94,8 @@ try{
 	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
 } catch { }
 
-Copy-Item $Path -Destination "$FinalPath\$($PackageName �Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
+Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
 
 Remove-Item (Get-Item $TempMSIPath).Directory -Force -Recurse -ErrorAction SilentlyContinue
 
 Write-Output("$FinalPath\$PackageName.mst" | ConvertTo-Json -Compress)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#[__comobject]$View = &$InvokeMethod -Object $NewDatabase -MethodName 'OpenView' -ArgumentList @("INSERT INTO Property (Property, Value) VALUES (PwCLang,'test')")
-<# &$InvokeMethod -Object $View -MethodName 'Execute' | Out-Null
-#>
-
-
-#&$InvokeMethod -Object $NewDatabase -MethodName 'Close' -ArgumentList @() | Out-Null
-#Copy-Item $Path -Destination "$FinalPath\$($PackageName –Replace ("_$PwCRelease"))" -Force -ErrorAction SilentlyContinue
-
-
-#Write-Output($FinalMST | ConvertTo-Json -Compress)
