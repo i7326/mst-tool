@@ -6,4 +6,8 @@
 body {
  font-family: Roboto;
  font-size: 13px;
+ background-image: url('assets/bg.jpg');
+ background-size: 100% 150%;
+ background-clip: content-box;
+ background-repeat: no-repeat;
  }
