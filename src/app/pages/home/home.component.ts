@@ -33,6 +33,19 @@ export class HomeComponent implements OnInit {
     return packagename;
   }
 
+  generateMST(path,packageName,checkboxValue) {
+    if(!checkboxValue) return false;
+    this.PSShell.run(this.root.concat('/scripts/generate-mst.ps1'), [{Path: path}, {PackageName: packageName}])
+      .subscribe(
+      output => this.msi.MSTPath = JSON.parse(output),
+      error => this.errorMessage = <any>error,
+      () => {
+        if (this.msi.MSTPath) {
+          this.openSnackbar(this.msi.MSTPath);
+        }
+      });
+    }
+
   browseMsi() {
     this.dialog.showOpenDialog({
       filters: [
@@ -63,11 +76,10 @@ export class HomeComponent implements OnInit {
       });
   }
 
-  openSnackbar(checkboxValue) {
-    if(!checkboxValue) return false;
+  openSnackbar(mstPath) {
     let snackBarRef = this.snackbar.open('MST Created !', 'Open Folder');
     snackBarRef.onAction().subscribe(() => {
-      console.log('The snack-bar action was triggered!');
+      console.log(mstPath);
     });
   }
 

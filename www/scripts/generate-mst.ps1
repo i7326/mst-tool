@@ -85,7 +85,9 @@ $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Commit' -ArgumentList 
 
 $Properties.GetEnumerator() | ForEach-Object { &$InsertProperty -PropertyName $_.Key -PropertyValue $_.Value }
 
-$null = &$InvokeMethod -Object $TempDatabase -MethodName 'GenerateTransform' -ArgumentList @($Database,"$FinalPath\$PackageName.mst")
+Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
+
+$null = &$InvokeMethod -Object $TempDatabase -MethodName 'GenerateTransform' -ArgumentList @($Database,"$FinalPath\$($PackageName).mst")
 $null = &$InvokeMethod -Object $TempDatabase -MethodName 'CreateTransformSummaryInfo' -ArgumentList @($Database,"$FinalPath\$PackageName.mst", 0, 0)
 
 try{
@@ -93,8 +95,6 @@ try{
 	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
 	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
 } catch { }
-
-Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
 
 Remove-Item (Get-Item $TempMSIPath).Directory -Force -Recurse -ErrorAction SilentlyContinue
 
