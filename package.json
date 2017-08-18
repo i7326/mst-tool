@@ -10,7 +10,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "prepare": "mkdirp www && copy electron www && electron www",
-    "electron": "concurrently \"ng serve\" \"npm run prepare\""
+    "electron": "concurrently \"ng serve\" \"npm run prepare\"",
+    "package": "electron-packager dist-out --overwrite --asar=false --platform=win32 --arch=x64 --icon=assets/icon.ico --prune=true --out=release-builds --version-string.CompanyName=PwC --version-string.FileDescription=\"Create MST\" --version-string.ProductName=\"MST Tool\""
   },
   "private": true,
   "dependencies": {
@@ -41,6 +42,7 @@
     "codelyzer": "~3.0.1",
     "electron": "^1.6.11",
     "electron-builder": "^19.19.1",
+    "electron-packager": "^8.7.2",
     "jasmine-core": "~2.6.2",
     "jasmine-spec-reporter": "~4.1.0",
     "karma": "~1.7.0",
