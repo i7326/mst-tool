@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
-import { remote,shell } from 'electron';
+import { remote, shell } from 'electron';
 
 
 @Component({
@@ -16,7 +16,9 @@ export class HomeComponent implements OnInit {
   msi: any = {};
   filename: string;
   errorMessage: string;
-  checkboxValue: boolean = false;
+  checkBoxValue: boolean = false;
+  showSpinner: boolean = false;
+  headerText: string = "1. Select MSI";
   constructor(private PSShell: PSService, private ref: ChangeDetectorRef, private snackbar: MdSnackBar) { }
 
   ngOnInit() {
@@ -33,19 +35,28 @@ export class HomeComponent implements OnInit {
     return packagename;
   }
 
-  generateMST(path,packageName,checkboxValue) {
-    if(!checkboxValue) return false;
-    this.PSShell.run(this.root.concat('/scripts/generate-mst.ps1'), [{Path: path}, {PackageName: packageName}])
+  generateMST(path, packageName, checkboxValue) {
+    if (!checkboxValue) return false;
+    this.snackbar.dismiss();
+    this.showSpinner = true;
+    this.PSShell.run(this.root.concat('/scripts/generate-mst.ps1'), [{ Path: path }, { PackageName: packageName }])
       .subscribe(
       output => this.msi.MSTPath = JSON.parse(output),
       error => this.errorMessage = <any>error,
       () => {
+        this.showSpinner = false;
         if (this.msi.MSTPath) {
           this.openSnackbar(this.msi.MSTPath);
         }
       });
+  }
+  checkboxFunction(event) {
+   if(event.checked) {
+      this.headerText = "3. Generate MST";
+    } else {
+      this.headerText = "2. Verify Package Name";
     }
-
+  }
   browseMsi() {
     this.dialog.showOpenDialog({
       filters: [
@@ -58,7 +69,9 @@ export class HomeComponent implements OnInit {
           this.PSShell.run(this.root.concat('/scripts/get-msiproperty.ps1'), [{ Path: filename[0] }])
             .subscribe(
             output => this.msi = JSON.parse(output),
-            error => this.errorMessage = <any>error,
+            error => {
+              this.dialog.showErrorBox("Error Creating MST", "Error Creating MST!");
+            },
             () => {
               if (this.msi) {
                 switch (this.msi.ProductLanguage) {
@@ -68,10 +81,13 @@ export class HomeComponent implements OnInit {
                   }
                 }
                 this.msi.PackageName = this.generatePackageName(this.msi) + '01';
+                this.headerText = "2. Verify Package Name";
               }
               this.ref.detectChanges();
-            }
-            );
+              setTimeout(()=>{
+                this.ref.detectChanges();
+              }, 50);
+            });
         }
       });
   }
@@ -79,7 +95,7 @@ export class HomeComponent implements OnInit {
   openSnackbar(mstPath) {
     let snackBarRef = this.snackbar.open('MST Created !', 'Open Folder');
     snackBarRef.onAction().subscribe(() => {
-      console.log(mstPath);
+      shell.showItemInFolder(mstPath);
     });
   }
 

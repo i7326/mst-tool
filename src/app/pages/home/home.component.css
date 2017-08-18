@@ -15,11 +15,37 @@
     margin-left: 6%;
 }
 
-.container {
-  border: solid 1px #b6b6b6;
-  background-color: rgba(255,255,255,0.5);
-  padding-bottom: 10px;
-  padding-top: 10px;
+md-card {
+  top: 25px;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.header {
+  padding-left: 15px;
+}
+.header h1{
+  color: #ffffff;
+}
+.spinner-hidden {
+    visibility: hidden;
+}
+.spinner-container {
+  cursor: not-allowed;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  height: 100%;
+  z-index: 9999;
+}
+.spinner-container .spinner {
+  height: 100%;
+}
+md-progress-bar {
+  top: 370px;
+  width: 90%;
+  left: 5%;
 }
 
 .colorNested, .colored, .coloredContainerX {
