@@ -9,9 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "prepare-dev": "mkdirp www && copy electron www && electron www",
-    "prepare-prod": "npm run build && copy www dist",
-    "electron": "concurrently \"ng serve\" \"npm run prepare-dev\"",
+    "prepare-prod": "npm run build && copy electron www && copy www dist",
+    "electron": "concurrently \"ng serve\" \"electron www\"",
     "package": "npm run prepare-prod && electron-packager dist --overwrite --asar=false --platform=win32 --arch=x64 --icon=assets/icon.ico --prune=true --out=release-builds --version-string.CompanyName=PwC --version-string.FileDescription=\"Create MST\" --version-string.ProductName=\"MST Tool\""
   },
   "private": true,
