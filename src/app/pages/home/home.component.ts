@@ -14,8 +14,7 @@ export class HomeComponent implements OnInit {
   filename: string;
   errorMessage: string;
   checkBoxValue: boolean = false;
-  showSpinner: boolean = false;
-  headerTextArray: string[] = ['1. Select MSI','2. Verify Package Name','3. Generate MST'];
+  headerTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   headerText: string;
   constructor(private PSShell: PSService, private ref: ChangeDetectorRef, private snackbar: MdSnackBar) { }
 
@@ -36,24 +35,22 @@ export class HomeComponent implements OnInit {
   generateMST(path, packageName, checkboxValue) {
     if (!checkboxValue) return false;
     this.snackbar.dismiss();
-    this.showSpinner = true;
     this.PSShell.run('generate-mst', [{ Path: path }, { PackageName: packageName }])
       .subscribe(
       output => this.msi.MSTPath = JSON.parse(output),
       error => this.errorMessage = <any>error,
       () => {
-        this.showSpinner = false;
         if (this.msi.MSTPath) {
           this.openSnackbar(this.msi.MSTPath);
         }
       });
   }
   checkboxFunction(event) {
-      this.headerText = (event.checked) ? this.headerTextArray[2] : this.headerTextArray[1];
+    this.headerText = (event.checked) ? this.headerTextArray[2] : this.headerTextArray[1];
   }
 
   browseMsi() {
-    this.dialog.showOpenDialog(remote.getCurrentWindow(),{
+    this.dialog.showOpenDialog(remote.getCurrentWindow(), {
       filters: [
         { name: 'Microsoft Installer', extensions: ['msi'] }
       ]
@@ -79,7 +76,7 @@ export class HomeComponent implements OnInit {
                 this.headerText = "2. Verify Package Name";
               }
               this.ref.detectChanges();
-              setTimeout(()=>{
+              setTimeout(() => {
                 this.ref.detectChanges();
               }, 50);
             });

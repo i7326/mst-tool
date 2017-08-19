@@ -7,10 +7,13 @@ import { PSService } from './ps.service';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './pages/home/home.component';
 import { FormsModule } from '@angular/forms';
+import { LoaderService } from './loader/loader.service';
+import { LoaderComponent } from './loader/loader.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    LoaderComponent,
     HomeComponent
   ],
   imports: [
@@ -20,7 +23,7 @@ import { FormsModule } from '@angular/forms';
     FlexLayoutModule,
     MaterialModule
   ],
-  providers: [PSService],
+  providers: [PSService,LoaderService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
