@@ -3,22 +3,20 @@ import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
 import { remote, shell } from 'electron';
 
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  private app = remote.app;
-  private dialog = remote.dialog;
-  private root = this.app.getAppPath();
+  dialog = remote.dialog;
   msi: any = {};
   filename: string;
   errorMessage: string;
   checkBoxValue: boolean = false;
   showSpinner: boolean = false;
-  headerText: string = "1. Select MSI";
+  headerTextArray: string[] = ['1. Select MSI','2. Verify Package Name','3. Generate MST'];
+  headerText: string;
   constructor(private PSShell: PSService, private ref: ChangeDetectorRef, private snackbar: MdSnackBar) { }
 
   ngOnInit() {
@@ -39,7 +37,7 @@ export class HomeComponent implements OnInit {
     if (!checkboxValue) return false;
     this.snackbar.dismiss();
     this.showSpinner = true;
-    this.PSShell.run(this.root.concat('/scripts/generate-mst.ps1'), [{ Path: path }, { PackageName: packageName }])
+    this.PSShell.run('generate-mst', [{ Path: path }, { PackageName: packageName }])
       .subscribe(
       output => this.msi.MSTPath = JSON.parse(output),
       error => this.errorMessage = <any>error,
@@ -51,14 +49,11 @@ export class HomeComponent implements OnInit {
       });
   }
   checkboxFunction(event) {
-   if(event.checked) {
-      this.headerText = "3. Generate MST";
-    } else {
-      this.headerText = "2. Verify Package Name";
-    }
+      this.headerText = (event.checked) ? this.headerTextArray[2] : this.headerTextArray[1];
   }
+
   browseMsi() {
-    this.dialog.showOpenDialog({
+    this.dialog.showOpenDialog(remote.getCurrentWindow(),{
       filters: [
         { name: 'Microsoft Installer', extensions: ['msi'] }
       ]
@@ -66,7 +61,7 @@ export class HomeComponent implements OnInit {
       (filename) => {
         if (filename) {
           this.filename = filename[0];
-          this.PSShell.run(this.root.concat('/scripts/get-msiproperty.ps1'), [{ Path: filename[0] }])
+          this.PSShell.run('get-msiproperty', [{ Path: filename[0] }])
             .subscribe(
             output => this.msi = JSON.parse(output),
             error => {
@@ -96,6 +91,7 @@ export class HomeComponent implements OnInit {
     let snackBarRef = this.snackbar.open('MST Created !', 'Open Folder');
     snackBarRef.onAction().subscribe(() => {
       shell.showItemInFolder(mstPath);
+      this.msi = {};
     });
   }
 
