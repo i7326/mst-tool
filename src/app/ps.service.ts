@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Shell } from 'node-powershell';
 import { Observable } from 'rxjs/Observable';
+import { remote } from 'electron';
+import { join } from 'path';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/do';
 import 'rxjs/Rx';
 
 @Injectable()
 export class PSService {
+  private _scriptdir = remote.app.getAppPath();
   public _shell: Shell = new Shell({
     executionPolicy: 'Bypass',
     noProfile: true
@@ -15,7 +18,7 @@ export class PSService {
 
   run(script, param): Observable<any> {
     let shellOutput;
-    this._shell.addCommand(script, param);
+    this._shell.addCommand(`&"${join(this._scriptdir,'scripts', script)}.ps1"`, param);
     return Observable.fromPromise(this._shell.invoke())
                      .do(data => console.log('server data:', data))
                      .map(data => data)
