@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Shell } from 'node-powershell';
 import { Observable } from 'rxjs/Observable';
 import { remote } from 'electron';
@@ -15,19 +15,19 @@ export class PSService {
     executionPolicy: 'Bypass',
     noProfile: true
   });
-  constructor(private loaderService: LoaderService) { }
+  constructor(private loaderService: LoaderService, private zone: NgZone) { }
 
   run(script, param): Observable<any> {
     let shellOutput;
-    this.showLoader();
+    this.zone.run(() => { this.showLoader() });
     this._shell.addCommand(`&"${join(this._scriptdir, 'scripts', script)}.ps1"`, param);
-    return Observable.fromPromise(this._shell.invoke())
-      .do(data => console.log('server data:', data))
-      .map(data => data)
+    return Observable.fromPromise( this._shell.invoke())
+      .do(data => console.log(data))
+      .map( data => data )
       .catch(this.handleError)
       .finally(() => {
-        this.hideLoader();
-      });
+        this.zone.run(() => { this.hideLoader() });
+      })
   }
 
 
