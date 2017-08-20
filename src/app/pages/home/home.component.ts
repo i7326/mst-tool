@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
 import { remote, shell } from 'electron';
+import {  FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -10,16 +11,19 @@ import { remote, shell } from 'electron';
 })
 export class HomeComponent implements OnInit {
   dialog = remote.dialog;
-  msi: any = {};
+  msi: any;
   filename: string;
   errorMessage: string;
-  checkBoxValue: boolean = false;
   headerTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   headerText: string;
-  constructor(private PSShell: PSService, private ref: ChangeDetectorRef, private snackbar: MdSnackBar) { }
+  constructor(private PSShell: PSService, private snackbar: MdSnackBar) { }
 
   ngOnInit() {
-
+      this.headerText = this.headerTextArray[0];
+      this.msi = {
+        checkBoxValue: false
+      };
+      this.filename = '';
     //console.log(this.app.getAppPath());
     //this.Shell.test([{Path:filename}]);
   }
@@ -75,10 +79,6 @@ export class HomeComponent implements OnInit {
                 this.msi.PackageName = this.generatePackageName(this.msi) + '01';
                 this.headerText = "2. Verify Package Name";
               }
-              this.ref.detectChanges();
-              setTimeout(() => {
-                this.ref.detectChanges();
-              }, 50);
             });
         }
       });
@@ -88,8 +88,12 @@ export class HomeComponent implements OnInit {
     let snackBarRef = this.snackbar.open('MST Created !', 'Open Folder');
     snackBarRef.onAction().subscribe(() => {
       shell.showItemInFolder(mstPath);
-      this.msi = {};
+      this.ngOnInit();
     });
+  }
+
+  validatePackageName(): boolean{
+    if(this.msi.PackageName) return !!(this.msi.PackageName.match('[^._A-Za-z0-9]'));
   }
 
 }

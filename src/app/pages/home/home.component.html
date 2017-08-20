@@ -32,13 +32,14 @@
       <div fxFlex="20%"><a md-raised-button color="primary" (click)="browseMsi()">Select MSI</a></div>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
         <md-input-container class="width-90-pt">
-          <input mdInput placeholder="Package Name" [(ngModel)]="msi.PackageName">
+          <input mdInput placeholder="Package Name" [(ngModel)]="msi.PackageName" [errorStateMatcher]="validatePackageName.bind(this)">
+          <md-error>Invalid Package Name</md-error>
         </md-input-container>
       </div>
       <div fxFlex="60%">
-        <md-checkbox [(ngModel)]="checkBoxValue" [disabled]="!msi.PackageName" (change)="checkboxFunction($event)">Proceed to create Transform</md-checkbox>
+        <md-checkbox [(ngModel)]="msi.checkBoxValue" [disabled]="validatePackageName.bind(this)" (change)="checkboxFunction($event)">Proceed to create Transform</md-checkbox>
       </div>
-      <div fxFlex="40%" fxLayoutAlign="space-around center"><a md-raised-button color="primary" (click)="generateMST(filename,msi.PackageName,checkBoxValue)" [disabled]="!checkBoxValue">Generate Transform</a></div>
+      <div fxFlex="40%" fxLayoutAlign="space-around center"><a md-raised-button color="primary" (click)="generateMST(filename,msi.PackageName,msi.checkBoxValue)" [disabled]="!msi.checkBoxValue">Generate Transform</a></div>
     </div>
   </div>
 </md-card>
