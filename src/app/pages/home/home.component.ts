@@ -39,7 +39,7 @@ export class HomeComponent implements OnInit {
   generateMST(path, packageName, checkboxValue) {
     if (!checkboxValue) return false;
     this.snackbar.dismiss();
-    this.PSShell.run('generate-mst', [{ Path: path }, { PackageName: packageName }])
+    this.PSShell.run('generate-mst.ps1', [{ Path: `"${path}"` }, { PackageName: packageName }])
       .subscribe(
       output => this.msi.MSTPath = JSON.parse(output),
       error => this.errorMessage = <any>error,
@@ -62,7 +62,7 @@ export class HomeComponent implements OnInit {
       (filename) => {
         if (filename) {
           this.filename = filename[0];
-          this.PSShell.run('get-msiproperty', [{ Path: filename[0] }])
+          this.PSShell.run('get-msiproperty.ps1', [{ Path: `"${filename[0]}"` }])
             .subscribe(
             output => this.msi = JSON.parse(output),
             error => {
