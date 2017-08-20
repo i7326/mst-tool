@@ -1,5 +1,5 @@
-﻿	[CmdletBinding()]
-	Param (
+﻿[CmdletBinding()]	
+Param (
 		[Parameter(Mandatory=$true)]
 		[string]$Path,
 		[Parameter(Mandatory=$false)]
