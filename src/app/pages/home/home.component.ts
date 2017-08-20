@@ -54,6 +54,7 @@ export class HomeComponent implements OnInit {
   }
 
   browseMsi() {
+    this.snackbar.dismiss();
     this.dialog.showOpenDialog(remote.getCurrentWindow(), {
       filters: [
         { name: 'Microsoft Installer', extensions: ['msi'] }

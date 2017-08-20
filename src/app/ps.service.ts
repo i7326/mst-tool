@@ -6,7 +6,6 @@ import { join } from 'path';
 import { readFileSync } from 'fs';
 import { LoaderService } from './loader/loader.service';
 import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/operator/do';
 import 'rxjs/Rx';
 
 @Injectable()
@@ -23,7 +22,6 @@ export class PSService {
     this.zone.run(() => { this.showLoader() });
     this._shell.addCommand(`&"${join(this._scriptdir, 'scripts', script)}"`, param);
     return Observable.fromPromise( this._shell.invoke())
-      .do(data => console.log(data))
       .map( data => data )
       .catch(this.handleError)
       .finally(() => {
