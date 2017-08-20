@@ -3,6 +3,7 @@ import { Shell } from 'node-powershell';
 import { Observable } from 'rxjs/Observable';
 import { remote } from 'electron';
 import { join } from 'path';
+import { readFileSync } from 'fs';
 import { LoaderService } from './loader/loader.service';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/add/operator/do';
@@ -20,7 +21,7 @@ export class PSService {
   run(script, param): Observable<any> {
     let shellOutput;
     this.zone.run(() => { this.showLoader() });
-    this._shell.addCommand(`&"${join(this._scriptdir, 'scripts', script)}.ps1"`, param);
+    this._shell.addCommand(`&"${join(this._scriptdir, 'scripts', script)}"`, param);
     return Observable.fromPromise( this._shell.invoke())
       .do(data => console.log(data))
       .map( data => data )
