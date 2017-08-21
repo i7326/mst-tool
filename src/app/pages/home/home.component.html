@@ -39,7 +39,7 @@
       <div fxFlex="60%">
         <md-checkbox [(ngModel)]="msi.checkBoxValue" [disabled]="!filename || !msi.PackageName || validatePackageName()" (change)="checkboxFunction($event)">Proceed to create Transform</md-checkbox>
       </div>
-      <div fxFlex="40%" fxLayoutAlign="space-around center"><a md-raised-button color="primary" (click)="generateMST(filename,msi.PackageName,msi.checkBoxValue)" [disabled]="!msi.checkBoxValue">Generate Transform</a></div>
+      <div fxFlex="40%" fxLayoutAlign="space-around center"><a md-raised-button color="primary" (click)="generateMST(filename,msi.PackageName,msi.checkBoxValue)" [disabled]="!msi.checkBoxValue || !msi.PackageName">Generate Transform</a></div>
     </div>
   </div>
 </md-card>
