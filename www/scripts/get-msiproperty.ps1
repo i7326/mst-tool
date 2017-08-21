@@ -12,7 +12,6 @@ Param (
 		[ValidateNotNullorEmpty()]
 		[boolean]$ContinueOnError = $true
 	)
-
     [psobject]$TableProperties = New-Object -TypeName PSObject
     [__comobject]$Installer = New-Object -ComObject WindowsInstaller.Installer -ErrorAction 'Stop'
     [scriptblock]$InvokeMethod = {
@@ -33,12 +32,11 @@ Param (
 	}
     [__comobject]$Database = &$InvokeMethod -Object $Installer -MethodName 'OpenDatabase' -ArgumentList @($Path, $OpenMode)
     [__comobject]$View = &$InvokeMethod -Object $Database -MethodName 'OpenView' -ArgumentList @("SELECT * FROM $Table")
-	&$InvokeMethod -Object $View -MethodName 'Execute' | Out-Null
+	$null = &$InvokeMethod -Object $View -MethodName 'Execute' | Out-Null
     [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
     While ($Record) {
 				$TableProperties | Add-Member -MemberType NoteProperty -Name (&$GetProperty -Object $Record -PropertyName 'StringData' -ArgumentList @(1)) -Value (&$GetProperty -Object $Record -PropertyName 'StringData' -ArgumentList @(2))
-				#  Retrieve the next row in the table
-				[__comobject]$Record = & $InvokeMethod -Object $View -MethodName 'Fetch'
+				[__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
 	}
-    & $InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @() | Out-Null
+    $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @() | Out-Null
     Write-Output($TableProperties | Select-object Manufacturer,ProductName,ProductVersion,ProductLanguage | ConvertTo-Json -Compress)

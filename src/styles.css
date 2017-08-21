@@ -11,4 +11,5 @@ body {
  background-size: 100% 150%;
  background-clip: content-box;
  background-repeat: no-repeat;
+ min-height: 100%;
  }
