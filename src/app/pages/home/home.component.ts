@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
 import { remote, shell } from 'electron';
-import {  FormControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { join } from 'path';
 
 @Component({
@@ -15,7 +15,6 @@ export class HomeComponent implements OnInit {
   dialog = remote.dialog;
   msi: any;
   filename: string;
-  errorMessage: string;
   headerTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   headerText: string;
   constructor(private PSShell: PSService, private snackbar: MdSnackBar) { }
@@ -85,7 +84,7 @@ export class HomeComponent implements OnInit {
                   }
                 }
                 this.msi.PackageName = this.generatePackageName(this.msi) + '01';
-                this.headerText = "2. Verify Package Name";
+                this.headerText = this.headerTextArray[1];
               }
             });
         }
