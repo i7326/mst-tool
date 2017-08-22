@@ -10,6 +10,7 @@ import { join } from 'path';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
+
 export class HomeComponent implements OnInit {
   dialog = remote.dialog;
   msi: any;
@@ -20,11 +21,11 @@ export class HomeComponent implements OnInit {
   constructor(private PSShell: PSService, private snackbar: MdSnackBar) { }
 
   ngOnInit() {
-      this.headerText = this.headerTextArray[0];
-      this.msi = {
-        checkBoxValue: false
-      };
-      this.filename = '';
+    this.headerText = this.headerTextArray[0];
+    this.msi = {
+      checkBoxValue: false
+    };
+    this.filename = '';
   }
 
   generatePackageName(msi) {
@@ -55,7 +56,7 @@ export class HomeComponent implements OnInit {
   }
 
   packageNameTextbox() {
-    if(this.validatePackageName()) this.msi.checkBoxValue = false;
+    if (this.validatePackageName()) this.msi.checkBoxValue = false;
   }
 
   browseMsi() {
@@ -99,8 +100,8 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  validatePackageName(): boolean{
-    if(this.msi.PackageName) return !!(this.msi.PackageName.match('[^._A-Za-z0-9]'));
+  validatePackageName(): boolean {
+    if (this.msi.PackageName) return !!(this.msi.PackageName.match('[^._A-Za-z0-9]'));
   }
 
 }
