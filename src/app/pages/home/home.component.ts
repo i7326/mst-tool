@@ -38,7 +38,8 @@ export class HomeComponent implements OnInit {
   generateMST(path, packageName, checkboxValue) {
     if (!checkboxValue) return false;
     this.snackbar.dismiss();
-    this.PSShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName }])
+    this.msi.activeSetup
+    this.PSShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.msi.activeSetup) ? true : false}])
       .subscribe(
       output => this.msi.MSTPath = JSON.parse(output),
       error => {

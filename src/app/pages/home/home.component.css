@@ -14,11 +14,15 @@
 .mt-l-7-pt {
     margin-left: 6%;
 }
-
-md-card {
-  background-color: rgba(255, 255, 255, 0.6) !important;
+.select-msi-button {
+  margin-left: 10px;
 }
-
+md-card {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+.active-setup {
+  font-size: 11px;
+}
 .header {
   padding-left: 15px;
 }
@@ -27,6 +31,9 @@ md-card {
   color: #ffffff;
 }
 
+.Proceed-Checkbox {
+  margin-bottom: 10px;
+}
 html, body {
       height:100%;
       min-height:100vh;
