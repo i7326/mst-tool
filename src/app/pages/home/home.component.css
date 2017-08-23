@@ -34,7 +34,11 @@ md-card {
 .Proceed-Checkbox {
   margin-bottom: 10px;
 }
-html, body {
-      height:100%;
-      min-height:100vh;
+
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor:  context-menu;
 }

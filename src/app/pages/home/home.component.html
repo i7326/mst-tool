@@ -1,31 +1,31 @@
-<div class="header">
+<div class="header disable-select">
   <h1>{{headerText}}</h1>
 </div>
 <md-card>
   <div class="container">
     <div fxLayout="row wrap" class="main">
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt">
+        <md-input-container class="width-90-pt disable-select">
           <input mdInput placeholder="Product Name" disabled value="{{msi.ProductName}}">
         </md-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
-        <md-input-container class="width-90-pt">
+        <md-input-container class="width-90-pt disable-select">
           <input mdInput placeholder="Version" disabled value="{{msi.ProductVersion}}">
         </md-input-container>
       </div>
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt">
+        <md-input-container class="width-90-pt disable-select">
           <input mdInput placeholder="Manufacturer" disabled value="{{msi.Manufacturer}}">
         </md-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
-        <md-input-container>
+        <md-input-container class="disable-select">
           <input mdInput placeholder="Language" disabled value="{{msi.ProductLanguage}}">
         </md-input-container>
       </div>
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt">
+        <md-input-container class="width-90-pt disable-select">
           <input mdInput placeholder="Installer" disabled value="{{filename}}">
         </md-input-container>
       </div>
@@ -37,10 +37,10 @@
         </md-input-container>
       </div>
       <div fxFlex="40%">
-        <md-checkbox [(ngModel)]="msi.activeSetup" [disabled]="!filename || !msi.PackageName || validatePackageName()" class="active-setup">Add Active Setup to package</md-checkbox>
+        <md-checkbox [(ngModel)]="msi.activeSetup" [disabled]="!filename || !msi.PackageName || validatePackageName()" class="active-setup disable-select">Add Active Setup to package</md-checkbox>
       </div>
-      <div fxFlex="60%" fxLayoutAlign="end space-between" class="Proceed-Checkbox">
-        <md-checkbox [(ngModel)]="msi.checkBoxValue" [disabled]="!filename || !msi.PackageName || validatePackageName()" [checked]="!validatePackageName() && msi.checkBoxValue && msi.PackageName" (change)="checkboxFunction($event)">Proceed to create Transform</md-checkbox>
+      <div fxFlex="60%" fxLayoutAlign="end space-between">
+        <md-checkbox [(ngModel)]="msi.checkBoxValue" [disabled]="!filename || !msi.PackageName || validatePackageName()" [checked]="!validatePackageName() && msi.checkBoxValue && msi.PackageName" (change)="checkboxFunction($event)"  class="Proceed-Checkbox disable-select">Proceed to create Transform</md-checkbox>
       </div>
       <div fxFlex="50%" fxLayoutAlign="start space-between"><img src="assets/images/logo.png" height="50px"/></div>
       <div fxFlex="50%" fxLayoutAlign="end center"><a md-raised-button color="primary" (click)="generateMST(filename,msi.PackageName,msi.checkBoxValue)" [disabled]="!msi.checkBoxValue || !msi.PackageName || validatePackageName()">Generate Transform</a></div>
