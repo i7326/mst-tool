@@ -8,11 +8,29 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <style>
+    .loading {
+      opacity: 0;
+      transition: opacity .5s ease-in-out;
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      top: 0;
+      left: 0;
+      background: #ffffff;
+      z-index: -1;
+    }
+
+    app-root:empty+.loading {
+      opacity: 1;
+      z-index: 100;
+    }
+  </style>
 </head>
 
 <body>
-  <app-root>
-    <div style="height:100%;width:100%;position:absolute;top:0px;left:0px;background-color:#ffffff;">
+  <app-root></app-root>
+  <div class="loading">
     <svg version="1.1" id="Logo" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" width="200" height="210" viewBox="-470 -200 451.316 414.473" overflow="visible" enable-background="new 0 0 451.316 414.473" xml:space="preserve">
     <g>
     	<polygon fill="#486AAE" points="14.616,286.732 116.23,286.732 116.23,317.654 87.079,317.654 87.079,391.969 44.737,391.969
@@ -39,7 +57,6 @@
     </g>
     </svg>
   </div>
-  </app-root>
 </body>
 
 </html>
