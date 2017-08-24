@@ -18,6 +18,12 @@ Function Exit-script {
     )
     $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value $ErrorOutput
     Write-Output($ErrorObject | ConvertTo-Json -Compress)
+    Try{
+	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
+	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
+    } Catch { }
     Exit 0
 }
     [psobject]$TableProperties = New-Object -TypeName PSObject

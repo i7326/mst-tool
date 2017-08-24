@@ -50,6 +50,13 @@ Function Exit-script {
     )
     $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value $ErrorOutput
     Write-Output($ErrorObject | ConvertTo-Json -Compress)
+    Try{
+	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($TempDatabase)
+	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
+	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
+    } Catch { }
     Exit 0
 }
 
@@ -149,8 +156,8 @@ Try {
     $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
     $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
     If (-Not $Record) {
-        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Branding_Registry','','PwC Branding Registry','Adds PwC branding to the package','0','1','PROGRAMFILESFOLDER','16')"
-        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Branding_Registry','{$(([GUID]::NewGuid()).ToString().ToUpper())}','ProgramFilesFolder','4','','Branding.1')"
+        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Branding_Registry','','PwC Branding Registry','Adds PwC branding to the package','0','1','INSTALLDIR','16')"
+        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Branding_Registry','{$(([GUID]::NewGuid()).ToString().ToUpper())}','TARGETDIR','4','','Branding.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Branding_Registry','PwC_Branding_Registry')"
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
@@ -160,8 +167,13 @@ Try {
             $null = &$InsertintoDBReg  -Object $View -Registry $regName -Root 2 -Path "SOFTWARE\PwC\SW\[PwCPackageName]" -Name $_.Key -Value $_.Value -Component "PwC_Branding_Registry"
             $i++
         }
-        $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
-        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        Try {
+            $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+            $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+            $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
+        } Catch{
+
+        }
     }
 } Catch {
     $ScriptError = "Error Adding Branding Registry"
@@ -173,9 +185,20 @@ Try {
         [string]$Template = &$GetProperty -Object $SummaryInfo -PropertyName 'Property' -ArgumentList @(7)
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($SummaryInfo)
         $componentAttribute = if ($Template -match "64") {260} else {4}
-        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Active_Setup','','PwC Active Setup','Adds Active Setup Entry to the package','0','1','PROGRAMFILESFOLDER','16')"
-        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Active_Setup_HKLM','{$(([GUID]::NewGuid()).ToString().ToUpper())}','ProgramFilesFolder',$componentAttribute,'','ActiveSetupHKLM.1')"
-        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Active_Setup_HKCU','{$(([GUID]::NewGuid()).ToString().ToUpper())}','AppDataFolder',$componentAttribute,'','ActiveSetupHKCU.1')"
+        [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Directory WHERE Directory='LocalAppDataFolder'")
+        $null = &$InvokeMethod -Object $View -MethodName 'Execute'
+        [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
+        $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        If (-Not $Record) {
+            $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Directory (Directory,Directory_Parent,DefaultDir) VALUES ('LocalAppDataFolder','TARGETDIR','.:APPLIC~1|Application Data')"  
+        }
+        Try {
+            $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
+        } Catch{ }
+        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Active_Setup','','PwC Active Setup','Adds Active Setup Entry to the package','0','1','INSTALLDIR','16')"
+        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Active_Setup_HKLM','{$(([GUID]::NewGuid()).ToString().ToUpper())}','TARGETDIR',$componentAttribute,'','ActiveSetupHKLM.1')"
+        $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Active_Setup_HKCU','{$(([GUID]::NewGuid()).ToString().ToUpper())}','LocalAppDataFolder',$componentAttribute,'','ActiveSetupHKCU.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKLM')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKCU')"
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
