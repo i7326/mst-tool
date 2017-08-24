@@ -14,6 +14,7 @@ import { join } from 'path';
 export class HomeComponent implements OnInit {
   dialog = remote.dialog;
   msi: any;
+  MSTPath: any;
   filename: string;
   headerTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   headerText: string;
@@ -41,13 +42,17 @@ export class HomeComponent implements OnInit {
     this.msi.activeSetup
     this.PSShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.msi.activeSetup) ? true : false}])
       .subscribe(
-      output => this.msi.MSTPath = JSON.parse(output),
+      output => this.MSTPath = JSON.parse(output),
       error => {
         this.dialog.showErrorBox("Error Creating MST", "Error Creating MST!");
       },
       () => {
-        if (this.msi.MSTPath) {
-          this.openSnackbar(this.msi.MSTPath);
+        if(this.MSTPath.Error) {
+          this.dialog.showErrorBox("Error Creating MST", `${this.MSTPath.Error}!`);
+          return false;
+        }
+        if (this.MSTPath) {
+          this.openSnackbar(this.MSTPath);
         }
       });
   }
@@ -77,6 +82,10 @@ export class HomeComponent implements OnInit {
               this.dialog.showErrorBox("Error Opening MSI", "Error Opening MSI!");
             },
             () => {
+              if(this.msi.Error) {
+                this.dialog.showErrorBox("Error Opening MSI", `${this.msi.Error}!`);
+                return false;
+              }
               if (this.msi) {
                 switch (this.msi.ProductLanguage) {
                   case "1033": {

@@ -7,10 +7,10 @@ Param (
 	[Parameter(Mandatory=$false)]
 	[boolean]$ActiveSetup = $false
 )
-[string]$ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 [int32]$OpenReadMode = 0
 [int32]$OpenWriteMode = 2
 [int32]$msiSuppressApplyTransformErrors = 63
+[psobject]$ErrorObject = New-Object -TypeName PSObject
 
 Try {
 [string]$FinalPath = (New-Item "$((Get-Item $Path -ErrorAction SilentlyContinue).Directory)\P1.00" -type directory -force).FullName
@@ -48,7 +48,9 @@ Function Exit-script {
     param(
 	    [string]$ErrorOutput
     )
-
+    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value $ErrorOutput
+    Write-Output($ErrorObject | ConvertTo-Json -Compress)
+    Exit 0
 }
 
 Try{
@@ -56,6 +58,7 @@ Try{
 }
 catch [Exception]{
 	$ScriptError = $_.Exception.Message
+    Exit-script -ErrorOutput $ScriptError
 }
 
 Try{
@@ -63,6 +66,7 @@ Try{
 }
 catch [Exception]{
 	$ScriptError = $_.Exception.Message
+    Exit-script -ErrorOutput $ScriptError
 }
 
 [scriptblock]$InvokeMethod = {
@@ -129,12 +133,14 @@ Try{
 }
 catch{
 	$ScriptError = "Access denied : $Path"
+    Exit-script -ErrorOutput $ScriptError
 }
 Try {
     [__comobject]$TempDatabase = &$InvokeMethod -Object $Installer -MethodName 'OpenDatabase' -ArgumentList @($TempMSIPath, 2)
 }
 Catch {
     $ScriptError = "Error Opening Temporary Database"
+    Exit-script -ErrorOutput $ScriptError
 }
 Try {
     [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Feature WHERE Feature='PwC_Branding_Registry'")
@@ -159,6 +165,7 @@ Try {
     }
 } Catch {
     $ScriptError = "Error Adding Branding Registry"
+    Exit-script -ErrorOutput $ScriptError
 }
 Try {
     if($ActiveSetup) {
@@ -181,6 +188,7 @@ Try {
     }
 } Catch { 
     $ScriptError = "Error Adding ActiveSetup"
+    Exit-script -ErrorOutput $ScriptError
 }
 Try {
 [scriptblock]$InsertProperty = {
@@ -204,18 +212,21 @@ Try {
     }
 } Catch { 
     $ScriptError = "Error Adding Properties."
+    Exit-script -ErrorOutput $ScriptError
 }
 $Properties.GetEnumerator() | ForEach-Object { &$InsertProperty -PropertyName $_.Key -PropertyValue $_.Value }
 Try {
     Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
 } Catch [Exception]{
     $ScriptError = $_.Exception.Message
+    Exit-script -ErrorOutput $ScriptError
 }
 Try {
     $null = &$InvokeMethod -Object $TempDatabase -MethodName 'GenerateTransform' -ArgumentList @($Database,"$FinalPath\$($PackageName).mst")
     $null = &$InvokeMethod -Object $TempDatabase -MethodName 'CreateTransformSummaryInfo' -ArgumentList @($Database,"$FinalPath\$PackageName.mst", 0, 1)
 } Catch {
-   $ScriptError = "Error Generating MST. Please check if a previously created MST is open." 
+   $ScriptError = "Error Generating MST. Please check if a previously created MST is open."
+   Exit-script -ErrorOutput $ScriptError
 }
 Try{
 	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($TempDatabase)
