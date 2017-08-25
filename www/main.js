@@ -1,9 +1,27 @@
 const electron = require('electron')
 
+const env = require('process').env
+
+const fs = require('fs-extra');
+
+const path = require('path');
+
+const temp = require('temp-fs').mkdirSync({ dir: env.TMP, recursive: true });
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+
+app.TempPath = function() {
+  var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
+  fs.readdir(scriptDir, (err, files) => {
+  files.forEach(file => {
+    fs.copySync(path.join(scriptDir,file), path.join(temp.path,file))
+    //fs.createReadStream(path.join(scriptDir,file)).pipe(fs.createWriteStream(path.join(temp.path,file)));
+  });
+})
+ return temp.path;
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -34,6 +52,7 @@ app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
+  temp.unlink()
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {

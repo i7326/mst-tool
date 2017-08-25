@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
     if (!checkboxValue) return false;
     this.Snackbar.dismiss();
     this.Msi.activeSetup
-    this.PsShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.Msi.activeSetup) ? true : false}])
+    this.PsShell.run('generate-mst', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.Msi.activeSetup) ? true : false}])
       .subscribe(
       output => this.MstPath = JSON.parse(output),
       error => {
@@ -75,7 +75,7 @@ export class HomeComponent implements OnInit {
       (filename) => {
         if (filename) {
           this.Filename = filename[0];
-          this.PsShell.run('get-msiproperty.ps1', [{ Path: `${join(this.Filename)}` }])
+          this.PsShell.run('get-msiproperty', [{ Path: `${join(this.Filename)}` }])
             .subscribe(
             output => this.Msi = JSON.parse(output),
             error => {
