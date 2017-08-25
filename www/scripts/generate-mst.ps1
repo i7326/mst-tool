@@ -4,6 +4,8 @@ Param (
 	[string]$Path,
 	[Parameter(Mandatory=$true)]
 	[string]$PackageName,
+    [Parameter(Mandatory=$true)]
+	[string]$Temp,
 	[Parameter(Mandatory=$false)]
 	[boolean]$ActiveSetup = $false
 )
@@ -41,7 +43,7 @@ Try {
 }
 
 Try {
-$TempMSIPath = "$((New-Item -ItemType Directory -Path "$env:Temp\MST-Tool\$PackageName" -Force).FullName)\$((Get-Item $Path -ErrorAction SilentlyContinue).Name)"
+$TempMSIPath = "$((New-Item -ItemType Directory -Path "$Temp\$PackageName" -Force).FullName)\$((Get-Item $Path -ErrorAction SilentlyContinue).Name)"
 } Catch { }
 
 Function Exit-script {

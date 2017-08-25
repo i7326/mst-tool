@@ -18,6 +18,7 @@ export class HomeComponent implements OnInit {
   Filename: string;
   HeaderTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   HeaderText: string;
+  TempPath: string = electron.remote.app.TempPath();
   constructor(private PsShell: PSService, private Snackbar: MdSnackBar) { }
 
   ngOnInit() {
@@ -40,7 +41,7 @@ export class HomeComponent implements OnInit {
     if (!checkboxValue) return false;
     this.Snackbar.dismiss();
     this.Msi.activeSetup
-    this.PsShell.run('generate-mst', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.Msi.activeSetup) ? true : false}])
+    this.PsShell.run('generate-mst', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.Msi.activeSetup) ? true : false},{ Temp: this.TempPath }])
       .subscribe(
       output => this.MstPath = JSON.parse(output),
       error => {

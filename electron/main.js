@@ -1,26 +1,22 @@
 const electron = require('electron')
-// Module to control application life.
-const env = require('process').env
 
-const fs = require('fs-extra');
+const temp = require('tmp').dirSync({unsafeCleanup: true});
 
 const path = require('path');
 
-const temp = require('temp-fs').mkdirSync({ dir: env.TMP, recursive: true });
+const tmp = require('process').env.TMP
 
+const fs = require('fs');
+
+
+//const temp = require('temp-fs').mkdirSync({ dir: env.TMP, recursive: true });
+// Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
 app.TempPath = function() {
-  var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
-  fs.readdir(scriptDir, (err, files) => {
-  files.forEach(file => {
-    fs.copySync(path.join(scriptDir,file), path.join(temp.path,file));
-    //fs.createReadStream(path.join(scriptDir,file)).pipe(fs.createWriteStream(path.join(temp.path,file)));
-  });
-})
- return temp.path;
+ return temp.name;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -28,14 +24,27 @@ app.TempPath = function() {
 let mainWindow
 
 function createWindow () {
+    var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 640, height: 480, resizable: false, fullscreen: false})
+  mainWindow = new BrowserWindow({width: 640, height: 480, resizable: false, fullscreen: false, show: false})
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
+  })
+
+  fs.readdir(scriptDir, (err, files) => {
+  files.forEach(file => {
+    fs.createReadStream(path.join(scriptDir,file)).pipe(fs.createWriteStream(path.join(temp.name,file)));
+  });
+})
   //mainWindow.loadURL(`http://localhost:4200`)
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
+
+
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -53,7 +62,14 @@ app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  temp.unlink()
+  temp.removeCallback()
+  fs.readdir(tmp, (err, files) => {
+  files.forEach(file => {
+    if(file.match('.tmp.ps1')) { fs.unlinkSync(path.join(tmp,file)) }
+    //fs.createReadStream(path.join(tmp,file)).pipe(fs.createWriteStream(path.join(temp.name,file)));
+  });
+})
+
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {

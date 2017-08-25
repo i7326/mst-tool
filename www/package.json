@@ -1,10 +1,9 @@
 {
   "name": "mst-tool",
   "productName": "MST Tool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "dependencies": {
-    "fs-extra": "^4.0.1",
-    "temp-fs": "^0.9.9"
+    "tmp": "0.0.33"
   },
   "main": "main.js"
 }

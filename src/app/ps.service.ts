@@ -21,13 +21,6 @@ export class PSService {
 
   constructor(private loaderService: LoaderService, private zone: NgZone) { }
 
-  randomString(m?) {
-    var m = m || 9;
-    var s = '';
-    var r = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < m; i++) { s += r.charAt(Math.floor(Math.random() * r.length)); }
-    return s;
-  };
   run(script, param): Observable<any> {
     this.zone.run(() => { this.showLoader() });
     this.shell.addCommand(`&"${this.Scripts[script]}"`, param);
