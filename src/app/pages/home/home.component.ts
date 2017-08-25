@@ -12,89 +12,89 @@ import { join } from 'path';
 })
 
 export class HomeComponent implements OnInit {
-  dialog = remote.dialog;
-  msi: any;
-  MSTPath: any;
-  filename: string;
-  headerTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
-  headerText: string;
-  constructor(private PSShell: PSService, private snackbar: MdSnackBar) { }
+  Dialog = remote.dialog;
+  Msi: any;
+  MstPath: any = {};
+  Filename: string;
+  HeaderTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
+  HeaderText: string;
+  constructor(private PsShell: PSService, private Snackbar: MdSnackBar) { }
 
   ngOnInit() {
-    this.headerText = this.headerTextArray[0];
-    this.msi = {
+    this.HeaderText = this.HeaderTextArray[0];
+    this.Msi = {
       checkBoxValue: false
     };
-    this.filename = '';
+    this.Filename = '';
   }
 
   generatePackageName(msi) {
-    let packagename = '';
+    let packageName = '';
     for (let x in msi) {
-      packagename += (x == 'ProductLanguage' ? msi[x].substr(0, 2).toUpperCase() : msi[x].replace(/[^._A-Za-z0-9]/g, '')) + '_';
+      packageName += (x == 'ProductLanguage' ? msi[x].substr(0, 2).toUpperCase() : msi[x].replace(/[^._A-Za-z0-9]/g, '')) + '_';
     }
-    return packagename;
+    return packageName;
   }
 
   generateMST(path, packageName, checkboxValue) {
     if (!checkboxValue) return false;
-    this.snackbar.dismiss();
-    this.msi.activeSetup
-    this.PSShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.msi.activeSetup) ? true : false}])
+    this.Snackbar.dismiss();
+    this.Msi.activeSetup
+    this.PsShell.run('generate-mst.ps1', [{ Path: `${join(path)}` }, { PackageName: packageName },{ ActiveSetup: (this.Msi.activeSetup) ? true : false}])
       .subscribe(
-      output => this.MSTPath = JSON.parse(output),
+      output => this.MstPath = JSON.parse(output),
       error => {
-        this.dialog.showErrorBox("Error Creating MST", "Error Creating MST!");
+        this.Dialog.showErrorBox("Error Creating MST", "Error Creating MST!");
       },
       () => {
-        if(this.MSTPath.Error) {
-          this.dialog.showErrorBox("Error Creating MST", `${this.MSTPath.Error}!`);
+        if(this.MstPath.Error) {
+          this.Dialog.showErrorBox("Error Creating MST", `${this.MstPath.Error}!`);
           return false;
         }
-        if (this.MSTPath) {
-          this.openSnackbar(this.MSTPath);
+        if (this.MstPath) {
+          this.openSnackbar(this.MstPath);
         }
       });
   }
   checkboxFunction(event) {
-    this.headerText = (event.checked) ? this.headerTextArray[2] : this.headerTextArray[1];
+    this.HeaderText = (event.checked) ? this.HeaderTextArray[2] : this.HeaderTextArray[1];
   }
 
   packageNameTextbox() {
-    if (this.validatePackageName()) this.msi.checkBoxValue = false;
+    if (this.validatePackageName()) this.Msi.checkBoxValue = false;
   }
 
   browseMsi() {
     this.ngOnInit();
-    this.snackbar.dismiss();
-    this.dialog.showOpenDialog(remote.getCurrentWindow(), {
+    this.Snackbar.dismiss();
+    this.Dialog.showOpenDialog(remote.getCurrentWindow(), {
       filters: [
         { name: 'Microsoft Installer', extensions: ['msi'] }
       ]
     },
       (filename) => {
         if (filename) {
-          this.filename = filename[0];
-          this.PSShell.run('get-msiproperty.ps1', [{ Path: `${join(this.filename)}` }])
+          this.Filename = filename[0];
+          this.PsShell.run('get-msiproperty.ps1', [{ Path: `${join(this.Filename)}` }])
             .subscribe(
-            output => this.msi = JSON.parse(output),
+            output => this.Msi = JSON.parse(output),
             error => {
-              this.dialog.showErrorBox("Error Opening MSI", "Error Opening MSI!");
+              this.Dialog.showErrorBox("Error Opening MSI", "Error Opening MSI!");
             },
             () => {
-              if(this.msi.Error) {
-                this.dialog.showErrorBox("Error Opening MSI", `${this.msi.Error}!`);
+              if(this.Msi.Error) {
+                this.Dialog.showErrorBox("Error Opening MSI", `${this.Msi.Error}!`);
                 return false;
               }
-              if (this.msi) {
-                switch (this.msi.ProductLanguage) {
+              if (this.Msi) {
+                switch (this.Msi.ProductLanguage) {
                   case "1033": {
-                    this.msi.ProductLanguage = "English";
+                    this.Msi.ProductLanguage = "English";
                     break;
                   }
                 }
-                this.msi.PackageName = this.generatePackageName(this.msi) + '01';
-                this.headerText = this.headerTextArray[1];
+                this.Msi.PackageName = this.generatePackageName(this.Msi) + '01';
+                this.HeaderText = this.HeaderTextArray[1];
               }
             });
         }
@@ -102,7 +102,7 @@ export class HomeComponent implements OnInit {
   }
 
   openSnackbar(mstPath) {
-    let snackBarRef = this.snackbar.open('MST Created !', 'Open Folder');
+    let snackBarRef = this.Snackbar.open('MST Created !', 'Open Folder');
     snackBarRef.onAction().subscribe(() => {
       shell.showItemInFolder(mstPath);
       this.ngOnInit();
@@ -110,7 +110,7 @@ export class HomeComponent implements OnInit {
   }
 
   validatePackageName(): boolean {
-    if (this.msi.PackageName) return !!(this.msi.PackageName.match('[^._A-Za-z0-9]'));
+    if (this.Msi.PackageName) return !!(this.Msi.PackageName.match('[^._A-Za-z0-9]'));
   }
 
 }
