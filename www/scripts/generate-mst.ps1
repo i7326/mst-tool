@@ -207,7 +207,7 @@ Try {
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
         $null = &$InsertintoDBReg -Object $View -Registry "ActiveSetupHKCU.1" -Root 1 -Path "Software\Microsoft\Active Setup\Installed Components\[ProductCode]" -Name "Version" -Value "1,0,0" -Component "PwC_Active_Setup_HKCU"
         $null = &$InsertintoDBReg -Object $View -Registry "ActiveSetupHKLM.1" -Root 2 -Path "SOFTWARE\Microsoft\Active Setup\Installed Components\[ProductCode]" -Name "Version" -Value "1,0,0" -Component "PwC_Active_Setup_HKLM"
-        $null = &$InsertintoDBReg -Object $View -Registry "ActiveSetupHKLM.2" -Root 1 -Path "SOFTWARE\Microsoft\Active Setup\Installed Components\[ProductCode]" -Name "StubPath" -Value "msiexec /foups [ProductCode] /l*v [WindowsFolder]Logs" -Component "PwC_Active_Setup_HKLM"
+        $null = &$InsertintoDBReg -Object $View -Registry "ActiveSetupHKLM.2" -Root 2 -Path "SOFTWARE\Microsoft\Active Setup\Installed Components\[ProductCode]" -Name "StubPath" -Value "msiexec /foups [ProductCode] /l*v [WindowsFolder]Logs" -Component "PwC_Active_Setup_HKLM"
         $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
     }
