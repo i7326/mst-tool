@@ -8,6 +8,8 @@ const rimraf = require('rimraf')
 
 const env = require('process').env;
 
+const shell = require('node-powershell');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -28,8 +30,21 @@ if(isSecondInstance){ app.quit() }
 
 const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
 
+const module_temp = path.join(temp, 'modules')
+
+const modules_dir = path.join(app.getAppPath(), 'modules')
+
 app.TempPath = function() {
   return temp;
+}
+
+let ps = new shell({
+  executionPolicy: 'Bypass',
+  noProfile: true
+});
+
+app.PowerShell = function() {
+  return ps;
 }
 
 function createWindow() {
@@ -50,11 +65,21 @@ function createWindow() {
     mainWindow.show()
   })
 
-  fs.readdir(scriptDir, (err, files) => {
-    files.forEach(file => {
-      filetream = fs.createWriteStream(path.join(temp, file));
-      filetream.write(fs.readFileSync(path.join(scriptDir, file)))
-      filetream.end()
+  mainWindow.webContents.on('did-finish-load', function() {
+    if (fs.existsSync(module_temp)) rimraf.sync(module_temp)
+  });
+
+  fs.mkdir(module_temp, () => {
+    fs.readdir(modules_dir, (err, files) => {
+      files.forEach((file) => {
+        let name = file.replace('.ps1', '');
+        let tempname = path.join(module_temp, name);
+        let filestream = fs.createWriteStream(tempname);
+        filestream.write(fs.readFileSync(path.join(modules_dir, file)));
+        filestream.end();
+        ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue`)
+        ps.invoke();
+      })
     });
   })
   //mainWindow.loadURL(`http://localhost:4200`)

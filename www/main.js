@@ -8,6 +8,8 @@ const fs = require('fs');
 
 const env = require('process').env;
 
+const shell = require('node-powershell');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -15,19 +17,37 @@ const BrowserWindow = electron.BrowserWindow
 
 let mainWindow = null
 
-const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) =>{
+const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-return true})
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+  return true
+})
 
-if(isSecondInstance){ app.quit() }
+if (isSecondInstance) {
+  app.quit()
+}
 
 const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
 
+const module_temp = path.join(temp, 'modules')
+
+const modules_dir = path.join(app.getAppPath(), 'modules')
+
 app.TempPath = function() {
   return temp;
+}
+
+let ps = new shell({
+  executionPolicy: 'Bypass',
+  noProfile: true
+});
+
+let scripts = [];
+
+app.PowerShell = function() {
+  return ps;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -35,14 +55,6 @@ app.TempPath = function() {
 
 
 function createWindow() {
-  var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
-  fs.readdir(scriptDir, (err, files) => {
-    files.forEach(file => {
-      filetream = fs.createWriteStream(path.join(temp, file));
-      filetream.write(fs.readFileSync(path.join(scriptDir, file)))
-      filetream.end()
-    });
-  })
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 640,
@@ -71,6 +83,21 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
+
+fs.mkdir(module_temp, () => {
+  fs.readdir(modules_dir, (err, files) => {
+    files.forEach((file) => {
+      let name = file.replace('.ps1', '');
+      let tempname = path.join(module_temp, name);
+      scripts.concat({name: name ,path: tempname});
+      let filestream = fs.createWriteStream(tempname);
+      filestream.write(fs.readFileSync(path.join(modules_dir, file)));
+      filestream.end();
+      ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue`)
+      ps.invoke();
+    })
+  });
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
