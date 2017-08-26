@@ -8,8 +8,6 @@ const rimraf = require('rimraf')
 
 const env = require('process').env;
 
-const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
-
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -27,6 +25,8 @@ const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) 
 return true})
 
 if(isSecondInstance){ app.quit() }
+
+const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
 
 app.TempPath = function() {
   return temp;
