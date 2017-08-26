@@ -1,32 +1,47 @@
 const electron = require('electron')
 
-const temp = require('tmp').dirSync({unsafeCleanup: true});
+const path = require('path')
 
-const path = require('path');
+const fs = require('fs')
 
-const tmp = require('process').env.TMP
+const rimraf = require('rimraf')
 
-const fs = require('fs');
+const env = require('process').env;
 
+const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
 
-//const temp = require('temp-fs').mkdirSync({ dir: env.TMP, recursive: true });
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
-app.TempPath = function() {
- return temp.name;
-}
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow = null
 
-function createWindow () {
-    var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
+const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) =>{
+  if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+return true})
+
+if(isSecondInstance){ app.quit() }
+
+app.TempPath = function() {
+  return temp;
+}
+
+function createWindow() {
+  var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 640, height: 480, resizable: false, fullscreen: false, show: false})
+  mainWindow = new BrowserWindow({
+    width: 640,
+    height: 480,
+    resizable: false,
+    fullscreen: false,
+    show: false
+  })
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`)
@@ -36,10 +51,12 @@ function createWindow () {
   })
 
   fs.readdir(scriptDir, (err, files) => {
-  files.forEach(file => {
-    fs.createReadStream(path.join(scriptDir,file)).pipe(fs.createWriteStream(path.join(temp.name,file)));
-  });
-})
+    files.forEach(file => {
+      filetream = fs.createWriteStream(path.join(temp, file));
+      filetream.write(fs.readFileSync(path.join(scriptDir, file)))
+      filetream.end()
+    });
+  })
   //mainWindow.loadURL(`http://localhost:4200`)
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
@@ -47,7 +64,7 @@ function createWindow () {
 
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
+  mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -61,14 +78,9 @@ function createWindow () {
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function () {
-  temp.removeCallback()
-  fs.readdir(tmp, (err, files) => {
-  files.forEach(file => {
-    if(file.match('.tmp.ps1')) { fs.unlinkSync(path.join(tmp,file)) }
-    //fs.createReadStream(path.join(tmp,file)).pipe(fs.createWriteStream(path.join(temp.name,file)));
-  });
-})
+app.on('window-all-closed', function() {
+
+  if (fs.existsSync(temp)) rimraf.sync(temp)
 
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -77,7 +89,7 @@ app.on('window-all-closed', function () {
   }
 })
 
-app.on('activate', function () {
+app.on('activate', function() {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
