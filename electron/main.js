@@ -8,6 +8,8 @@ const rimraf = require('rimraf')
 
 const env = require('process').env;
 
+const shell = require('node-powershell');
+
 // Module to control application life.
 const app = electron.app
 // Module to create native browser window.
@@ -17,20 +19,59 @@ const BrowserWindow = electron.BrowserWindow
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow = null
 
-const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) =>{
+const isSecondInstance = app.makeSingleInstance((commandLine, workingDirectory) => {
   if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
-    }
-return true})
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+  return true
+})
 
-if(isSecondInstance){ app.quit() }
+if (isSecondInstance) {
+  app.quit()
+}
 
 const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
+
+const module_temp = path.join(temp, 'bin')
+
+const modules_dir = path.join(app.getAppPath(), 'modules')
 
 app.TempPath = function() {
   return temp;
 }
+
+let ps = new shell({
+  executionPolicy: 'Bypass',
+  noProfile: true
+});
+
+app.PowerShell = function() {
+  return ps;
+}
+
+function randomString(m) {
+  var s = '';
+  var r = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (var i = 0; i < m; i++) {
+    s += r.charAt(Math.floor(Math.random() * r.length));
+  }
+  return s;
+};
+
+fs.mkdir(module_temp, () => {
+  fs.readdir(modules_dir, (err, files) => {
+    files.forEach((file) => {
+      let name = file.replace('.ps1', '');
+      let tempname = path.join(module_temp, randomString(10));
+      let filestream = fs.createWriteStream(tempname);
+      filestream.write(fs.readFileSync(path.join(modules_dir, file)));
+      filestream.end();
+      ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue`)
+      ps.invoke();
+    });
+  });
+});
 
 function createWindow() {
   var scriptDir = `${path.join(app.getAppPath(), 'scripts')}`
@@ -50,13 +91,14 @@ function createWindow() {
     mainWindow.show()
   })
 
-  fs.readdir(scriptDir, (err, files) => {
-    files.forEach(file => {
-      filetream = fs.createWriteStream(path.join(temp, file));
-      filetream.write(fs.readFileSync(path.join(scriptDir, file)))
-      filetream.end()
-    });
+  mainWindow.webContents.on('will-navigate', ev => {
+    ev.preventDefault()
   })
+
+  electron.ipcMain.once('delete-temp', () => {
+    if (fs.existsSync(module_temp)) rimraf.sync(module_temp)
+  });
+
   //mainWindow.loadURL(`http://localhost:4200`)
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()

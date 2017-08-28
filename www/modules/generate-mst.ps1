@@ -50,8 +50,6 @@ Function Exit-script {
     param(
 	    [string]$ErrorOutput
     )
-    $ErrorObject | Add-Member -MemberType NoteProperty -Name "Error" -Value $ErrorOutput
-    Write-Output($ErrorObject | ConvertTo-Json -Compress)
     Try{
 	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($TempDatabase)
 	    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
@@ -59,6 +57,7 @@ Function Exit-script {
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
     } Catch { }
+    Throw $ErrorOutput
     Exit 0
 }
 
@@ -240,8 +239,9 @@ Try {
     Exit-script -ErrorOutput $ScriptError
 }
 $Properties.GetEnumerator() | ForEach-Object { &$InsertProperty -PropertyName $_.Key -PropertyValue $_.Value }
+
 Try {
-    Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi" -Force -ErrorAction SilentlyContinue
+    Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi"   -ErrorAction Stop -Force
 } Catch [Exception]{
     $ScriptError = $_.Exception.Message
     Exit-script -ErrorOutput $ScriptError

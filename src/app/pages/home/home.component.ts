@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
-import { remote, shell } from 'electron';
+import { remote, shell, ipcRenderer } from 'electron';
 import { FormControl } from '@angular/forms';
 import { join } from 'path';
 
@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
   HeaderTextArray: string[] = ['1. Select MSI', '2. Verify Package Name', '3. Generate MST'];
   HeaderText: string;
   TempPath: string = electron.remote.app.TempPath();
+  BrowserWindow: any = remote.getCurrentWindow();
   constructor(private PsShell: PSService, private Snackbar: MdSnackBar) { }
 
   ngOnInit() {
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
       checkBoxValue: false
     };
     this.Filename = '';
+    //this.BrowserWindow.startDrag(item)
   }
 
   generatePackageName(msi) {
@@ -45,13 +47,9 @@ export class HomeComponent implements OnInit {
       .subscribe(
       output => this.MstPath = JSON.parse(output),
       error => {
-        this.Dialog.showErrorBox("Error Creating MST", "Error Creating MST!");
+        this.Dialog.showErrorBox("Error Creating MST", error);
       },
       () => {
-        if(this.MstPath.Error) {
-          this.Dialog.showErrorBox("Error Creating MST", `${this.MstPath.Error}!`);
-          return false;
-        }
         if (this.MstPath) {
           this.openSnackbar(this.MstPath);
         }
@@ -68,7 +66,7 @@ export class HomeComponent implements OnInit {
   browseMsi() {
     this.ngOnInit();
     this.Snackbar.dismiss();
-    this.Dialog.showOpenDialog(remote.getCurrentWindow(), {
+    this.Dialog.showOpenDialog(this.BrowserWindow, {
       filters: [
         { name: 'Microsoft Installer', extensions: ['msi'] }
       ]
@@ -80,13 +78,9 @@ export class HomeComponent implements OnInit {
             .subscribe(
             output => this.Msi = JSON.parse(output),
             error => {
-              this.Dialog.showErrorBox("Error Opening MSI", "Error Opening MSI!");
+              this.Dialog.showErrorBox("Error Opening MSI", error);
             },
             () => {
-              if(this.Msi.Error) {
-                this.Dialog.showErrorBox("Error Opening MSI", `${this.Msi.Error}!`);
-                return false;
-              }
               if (this.Msi) {
                 switch (this.Msi.ProductLanguage) {
                   case "1033": {
@@ -97,6 +91,7 @@ export class HomeComponent implements OnInit {
                 this.Msi.PackageName = this.generatePackageName(this.Msi) + '01';
                 this.HeaderText = this.HeaderTextArray[1];
               }
+              ipcRenderer.send('delete-temp', 'delete')
             });
         }
       });

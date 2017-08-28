@@ -1,29 +1,25 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Shell } from 'node-powershell';
 import { Observable } from 'rxjs/Observable';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 import { join } from 'path';
 import { env } from 'process';
-import { createWriteStream, createReadStream } from 'fs';
+import { createWriteStream, createReadStream, readdir, readFileSync } from 'fs';
 import { LoaderService } from './loader/loader.service';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/Rx';
 
 @Injectable()
 export class PSService {
-  private scriptDir = remote.app.getAppPath();
   private TempPath: string = electron.remote.app.TempPath();
-  private Scripts: any = { 'get-msiproperty': `${join(this.TempPath, 'get-msiproperty.ps1')}`, 'generate-mst': `${join(this.TempPath, 'generate-mst.ps1')}`};
-  public shell: Shell = new Shell({
-    executionPolicy: 'Bypass',
-    noProfile: true
-  });
+  public shell = electron.remote.app.PowerShell();
 
   constructor(private loaderService: LoaderService, private zone: NgZone) { }
 
   run(script, param): Observable<any> {
     this.zone.run(() => { this.showLoader() });
-    this.shell.addCommand(`&"${this.Scripts[script]}"`, param);
+    if (param) { this.shell.addCommand(`${script}`, param) }
+    else { this.shell.addCommand(`${script}`) };
+
     return Observable.fromPromise(this.shell.invoke())
       .map(data => data)
       .catch(this.handleError)
@@ -36,11 +32,7 @@ export class PSService {
   private handleError(error: any) {
     // In a real world app, we might use a remote logging infrastructure
     // We'd also dig deeper into the error to get a better message
-    let errMsg = (error.message) ? error.message :
-      error.status ? `${error.status} - ${error.statusText}` : 'Command error';
-    console.error(errMsg); // log to console instead
-    this.shell.dispose();
-    return Observable.throw(errMsg);
+    return Observable.throw(error.split('At line:')[0]);
   }
 
   private showLoader(): void {
