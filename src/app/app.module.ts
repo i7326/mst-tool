@@ -23,7 +23,7 @@ import { LoaderComponent } from './loader/loader.component';
     FlexLayoutModule,
     MaterialModule
   ],
-  providers: [PSService,LoaderService],
+  providers: [PSService, LoaderService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
