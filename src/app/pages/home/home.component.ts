@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
 import { PSService } from '../../ps.service';
-import { remote, shell } from 'electron';
+import { remote, shell, ipcRenderer } from 'electron';
 import { FormControl } from '@angular/forms';
 import { join } from 'path';
 
@@ -91,6 +91,7 @@ export class HomeComponent implements OnInit {
                 this.Msi.PackageName = this.generatePackageName(this.Msi) + '01';
                 this.HeaderText = this.HeaderTextArray[1];
               }
+              ipcRenderer.send('delete-temp', 'delete')
             });
         }
       });

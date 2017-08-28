@@ -1,6 +1,6 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 import { join } from 'path';
 import { env } from 'process';
 import { createWriteStream, createReadStream, readdir, readFileSync } from 'fs';
@@ -11,7 +11,6 @@ import 'rxjs/Rx';
 @Injectable()
 export class PSService {
   private TempPath: string = electron.remote.app.TempPath();
-  private Scripts: any = { 'get-msiproperty': `${join(this.TempPath, 'get-msiproperty.ps1')}`, 'generate-mst': `${join(this.TempPath, 'generate-mst.ps1')}` };
   public shell = electron.remote.app.PowerShell();
 
   constructor(private loaderService: LoaderService, private zone: NgZone) { }
@@ -33,7 +32,7 @@ export class PSService {
   private handleError(error: any) {
     // In a real world app, we might use a remote logging infrastructure
     // We'd also dig deeper into the error to get a better message
-    return Observable.throw(error.split('At line:')[0].slice(4));
+    return Observable.throw(error.split('At line:')[0]);
   }
 
   private showLoader(): void {

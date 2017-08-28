@@ -31,7 +31,7 @@ if (isSecondInstance) {
 
 const temp = fs.mkdtempSync(path.join(`${env.Tmp}/`))
 
-const module_temp = path.join(temp, 'modules')
+const module_temp = path.join(temp, 'bin')
 
 const modules_dir = path.join(app.getAppPath(), 'modules')
 
@@ -70,6 +70,10 @@ function createWindow() {
     mode: 'undocked'
   })
 
+  electron.ipcMain.once('delete-temp',(event, arg) => {
+    if (fs.existsSync(module_temp)) rimraf.sync(module_temp)
+  });
+
   mainWindow.webContents.on('will-navigate', ev => {
     ev.preventDefault()
   })
@@ -88,18 +92,26 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
 
+function randomString(m) {
+  var s = '';
+  var r = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (var i = 0; i < m; i++) {
+    s += r.charAt(Math.floor(Math.random() * r.length));
+  }
+  return s;
+};
+
 fs.mkdir(module_temp, () => {
   fs.readdir(modules_dir, (err, files) => {
     files.forEach((file) => {
       let name = file.replace('.ps1', '');
-      let tempname = path.join(module_temp, name);
-      scripts.concat({name: name ,path: tempname});
+      let tempname = path.join(module_temp, randomString(10));
       let filestream = fs.createWriteStream(tempname);
       filestream.write(fs.readFileSync(path.join(modules_dir, file)));
       filestream.end();
       ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue`)
       ps.invoke();
-    })
+    });
   });
 })
 
