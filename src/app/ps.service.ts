@@ -13,7 +13,6 @@ export class PSService {
   private TempPath: string = electron.remote.app.TempPath();
   private Scripts: any = { 'get-msiproperty': `${join(this.TempPath, 'get-msiproperty.ps1')}`, 'generate-mst': `${join(this.TempPath, 'generate-mst.ps1')}` };
   public shell = electron.remote.app.PowerShell();
-  //private shell:any;
 
   constructor(private loaderService: LoaderService, private zone: NgZone) { }
 
@@ -34,11 +33,7 @@ export class PSService {
   private handleError(error: any) {
     // In a real world app, we might use a remote logging infrastructure
     // We'd also dig deeper into the error to get a better message
-    let errMsg = (error.message) ? error.message :
-      error.status ? `${error.status} - ${error.statusText}` : 'Command error';
-    console.error(errMsg); // log to console instead
-    this.shell.dispose();
-    return Observable.throw(errMsg);
+    return Observable.throw(error.split('At line:')[0].slice(4));
   }
 
   private showLoader(): void {

@@ -32,7 +32,7 @@
       <div fxFlex="30%"><a md-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select MSI</a></div>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
         <md-input-container class="full-width">
-          <input mdInput placeholder="Package Name" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">
+          <input mdInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">
           <md-error>Invalid Package Name</md-error>
         </md-input-container>
       </div>

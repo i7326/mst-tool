@@ -70,6 +70,10 @@ function createWindow() {
     mode: 'undocked'
   })
 
+  mainWindow.webContents.on('will-navigate', ev => {
+    ev.preventDefault()
+  })
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows

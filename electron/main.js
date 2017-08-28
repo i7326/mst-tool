@@ -65,6 +65,10 @@ function createWindow() {
     mainWindow.show()
   })
 
+  mainWindow.webContents.on('will-navigate', ev => {
+    ev.preventDefault()
+  })
+
   mainWindow.webContents.on('did-finish-load', function() {
     if (fs.existsSync(module_temp)) rimraf.sync(module_temp)
   });
