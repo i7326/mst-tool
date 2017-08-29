@@ -32,7 +32,7 @@
       <div fxFlex="30%"><a md-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select MSI</a></div>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
         <md-input-container class="full-width">
-          <input mdInput placeholder="Package Name" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">
+          <input mdInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">
           <md-error>Invalid Package Name</md-error>
         </md-input-container>
       </div>
@@ -42,7 +42,7 @@
       <div fxFlex="60%" fxLayoutAlign="end space-between">
         <md-checkbox [(ngModel)]="Msi.checkBoxValue" [disabled]="!Filename || !Msi.PackageName || validatePackageName()" [checked]="!validatePackageName() && Msi.checkBoxValue && Msi.PackageName" (change)="checkboxFunction($event)"  class="proceed-checkbox disable-select">Proceed to create Transform</md-checkbox>
       </div>
-      <div fxFlex="50%" fxLayoutAlign="start space-between"><img src="assets/images/logo.png" height="50px"/></div>
+      <div fxFlex="50%" fxLayoutAlign="start space-between"><img src="assets/images/logo.png" height="50px" class="disable-select"/></div>
       <div fxFlex="50%" fxLayoutAlign="end center"><a md-raised-button color="primary" (click)="generateMST(Filename,Msi.PackageName,Msi.checkBoxValue)" [disabled]="!Msi.checkBoxValue || !Msi.PackageName || validatePackageName()">Generate Transform</a></div>
     </div>
   </div>
