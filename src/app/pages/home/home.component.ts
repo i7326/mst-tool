@@ -107,5 +107,4 @@ export class HomeComponent implements OnInit {
   validatePackageName(): boolean {
     if (this.Msi.PackageName) return !!(this.Msi.PackageName.match('[^._A-Za-z0-9]'));
   }
-//
 }
