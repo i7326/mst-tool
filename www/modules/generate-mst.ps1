@@ -160,6 +160,9 @@ Try {
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Branding_Registry','','PwC Branding Registry','Adds PwC branding to the package','0','1','INSTALLDIR','16')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Branding_Registry','{$(([GUID]::NewGuid()).ToString().ToUpper())}','TARGETDIR','4','','Branding.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Branding_Registry','PwC_Branding_Registry')"
+        if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {
+           $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"Registry.idt")
+        }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
         $i = 1

@@ -35,6 +35,8 @@ const module_temp = path.join(temp, 'bin')
 
 const modules_dir = path.join(app.getAppPath(), 'modules')
 
+const models_dir = path.join(app.getAppPath(), 'models')
+
 app.TempPath = function() {
   return temp;
 }
@@ -70,8 +72,15 @@ function createWindow() {
     mode: 'undocked'
   })
 
-  electron.ipcMain.once('delete-temp',(event, arg) => {
+  electron.ipcMain.once('delete-temp', () => {
     if (fs.existsSync(module_temp)) rimraf.sync(module_temp)
+    fs.readdir(models_dir, (err, files) => {
+      files.forEach((file) => {
+        let filestream = fs.createWriteStream(path.join(temp, file));
+        filestream.write(fs.readFileSync(path.join(models_dir, file)));
+        filestream.end();
+      });
+    });
   });
 
   mainWindow.webContents.on('will-navigate', ev => {
