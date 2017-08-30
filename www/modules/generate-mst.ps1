@@ -7,7 +7,9 @@ Param (
     [Parameter(Mandatory=$true)]
 	[string]$Temp,
 	[Parameter(Mandatory=$false)]
-	[boolean]$ActiveSetup = $false
+	[boolean]$ActiveSetup = $false,
+    [Parameter(Mandatory=$false)]
+	[boolean]$Exclude = $false
 )
 [int32]$OpenReadMode = 0
 [int32]$OpenWriteMode = 2
@@ -18,7 +20,7 @@ Try {
 [string]$FinalPath = (New-Item "$((Get-Item $Path -ErrorAction SilentlyContinue).Directory)\P1.00" -type directory -force).FullName
 } Catch {  }
 [string[]] $PropertyList = $PackageName.split('_')
-[hashtable] $Properties = @{
+[hashtable] $Properties = if(-Not $Exclude){@{
 	PwCPackageName = $PackageName
 	PwCLang = $PropertyList[3]
 	PwCRelease = $PropertyList[4]
@@ -29,7 +31,15 @@ Try {
     REINSTALLMODE = "vomus"
     ROOTDRIVE = "C:\"
     MSIRESTARTMANAGERCONTROL = "Disable"
-}
+}}else{@{
+ARPNOMODIFY = 1
+    REBOOT = "ReallySuppress"
+    REBOOTPROMPT = "S"
+    REINSTALLMODE = "vomus"
+    ROOTDRIVE = "C:\"
+    MSIRESTARTMANAGERCONTROL = "Disable"
+}}
+
 [hashtable] $Registries = @{
 	Time = "[Time]"
 	Date = "[Date]"
@@ -41,6 +51,15 @@ Try {
     ProductCode = "[ProductCode]"
     ProductName = "[ProductName]"
 }
+
+$ValidationReg = @"
+Registry	Component_	N			Component	1	Identifier		Foreign key into the Component table referencing component that controls the installing of the registry value.
+Registry	Key	N					RegPath		The key for the registry value.
+Registry	Name	Y					Formatted		The registry value name.
+Registry	Registry	N					Identifier		Primary key, non-localized token.
+Registry	Root	N	-1	3					The predefined root key for the registry value, one of rrkEnum.
+Registry	Value	Y					Formatted		The registry value.
+"@
 
 Try {
 $TempMSIPath = "$((New-Item -ItemType Directory -Path "$Temp\$PackageName" -Force).FullName)\$((Get-Item $Path -ErrorAction SilentlyContinue).Name)"
@@ -156,12 +175,15 @@ Try {
     [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
     $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
     $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
-    If (-Not $Record) {
+    If (-Not $Record -and -Not $Exclude) {
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Branding_Registry','','PwC Branding Registry','Adds PwC branding to the package','0','1','INSTALLDIR','16')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Branding_Registry','{$(([GUID]::NewGuid()).ToString().ToUpper())}','TARGETDIR','4','','Branding.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Branding_Registry','PwC_Branding_Registry')"
-        if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {
+        if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {           
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"Registry.idt")
+           $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Export' -ArgumentList @("_Validation",$Temp,"_Validation.idt")
+           Add-Content "$Temp\_Validation.idt" "$ValidationReg" | Out-Null
+           $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"_Validation.idt")
         }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
@@ -205,6 +227,14 @@ Try {
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Active_Setup_HKCU','{$(([GUID]::NewGuid()).ToString().ToUpper())}','LocalAppDataFolder',$componentAttribute,'','ActiveSetupHKCU.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKLM')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKCU')"
+        if($Exclude) {
+           if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {           
+              $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"Registry.idt")
+              $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Export' -ArgumentList @("_Validation",$Temp,"_Validation.idt")
+              Add-Content "$Temp\_Validation.idt" "$ValidationReg" | Out-Null
+              $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"_Validation.idt")
+          }
+        }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
         $null = &$InsertintoDBReg -Object $View -Registry "ActiveSetupHKCU.1" -Root 1 -Path "Software\Microsoft\Active Setup\Installed Components\[ProductCode]" -Name "Version" -Value "1,0,0" -Component "PwC_Active_Setup_HKCU"
