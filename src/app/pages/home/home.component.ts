@@ -33,7 +33,7 @@ export class HomeComponent implements OnInit {
   generatePackageName(msi) {
     let packageName = '';
     for (let x in msi) {
-      packageName += (x == 'ProductLanguage' ? msi[x].substr(0, 2).toUpperCase() : msi[x].replace(/[^._A-Za-z0-9]/g, '')) + '_';
+      if(x != "Exclude") packageName += (x == 'ProductLanguage' ? msi[x].substr(0, 2).toUpperCase() : msi[x].replace(/[^._A-Za-z0-9]/g, '')) + '_';
     }
     return packageName;
   }
@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit {
     if (!checkboxValue) return false;
     this.Snackbar.dismiss();
     this.Msi.activeSetup
-    this.PsShell.run('generate-mst', [{ Path: `${join(path)}` }, { PackageName: packageName }, { ActiveSetup: (this.Msi.activeSetup) ? true : false }, { Temp: this.TempPath }])
+    this.PsShell.run('generate-mst', [{ Path: `${join(path)}` }, { PackageName: packageName }, { ActiveSetup: (this.Msi.activeSetup) ? true : false }, { Temp: this.TempPath }, { Exclude: (this.Msi.Exclude) ? true : false }])
       .subscribe(
       output => this.MstPath = JSON.parse(output),
       error => {
