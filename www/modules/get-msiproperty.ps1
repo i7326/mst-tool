@@ -66,14 +66,18 @@ Try{
 				[__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
 	}
     $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+    if([bool]($TableProperties.psobject.Properties | Where-Object { @("pwcpackageName","pwclang","pwcrelease") -ccontains $_.Name.ToLower() })) {
+        $TableProperties | Add-Member -MemberType NoteProperty -Name "Exclude" -Value $true
+    }
 } Catch { 
     $ScriptError = "Error Fetching Properties"
     Exit-script -ErrorOutput $ScriptError
 }
-Try{
-	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
-	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
-	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
-	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
+Try {
+	 $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Database)
+	 $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Installer)
+     $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+     $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
 } Catch { }
-    Write-Output($TableProperties | Select-object Manufacturer,ProductName,ProductVersion,ProductLanguage | ConvertTo-Json -Compress)
+
+    Write-Output($TableProperties | Select-object Manufacturer,ProductName,ProductVersion,ProductLanguage,Exclude | ConvertTo-Json -Compress)

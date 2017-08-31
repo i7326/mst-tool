@@ -184,6 +184,7 @@ Try {
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Export' -ArgumentList @("_Validation",$Temp,"_Validation.idt")
            Add-Content "$Temp\_Validation.idt" "$ValidationReg" | Out-Null
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"_Validation.idt")
+           $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Commit'
         }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
