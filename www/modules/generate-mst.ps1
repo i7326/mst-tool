@@ -12,7 +12,7 @@ Param (
 	[boolean]$Exclude = $false
 )
 [int32]$OpenReadMode = 0
-[int32]$OpenWriteMode = 2
+[int32]$OpenWriteMode = 1
 [int32]$msiSuppressApplyTransformErrors = 63
 [psobject]$ErrorObject = New-Object -TypeName PSObject
 
