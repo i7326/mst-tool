@@ -12,7 +12,7 @@ Param (
 	[boolean]$Exclude = $false
 )
 [int32]$OpenReadMode = 0
-[int32]$OpenWriteMode = 2
+[int32]$OpenWriteMode = 1
 [int32]$msiSuppressApplyTransformErrors = 63
 [psobject]$ErrorObject = New-Object -TypeName PSObject
 
@@ -32,7 +32,8 @@ Try {
     ROOTDRIVE = "C:\"
     MSIRESTARTMANAGERCONTROL = "Disable"
 }}else{@{
-ARPNOMODIFY = 1
+	ARPCOMMENTS = $PackageName
+    ARPNOMODIFY = 1
     REBOOT = "ReallySuppress"
     REBOOTPROMPT = "S"
     REINSTALLMODE = "vomus"
@@ -155,6 +156,26 @@ catch [Exception]{
             $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($record)
 }
 
+[scriptblock]$InsertProperty = {
+	Param (
+		[string]$PropertyName,
+		[string]$PropertyValue
+	)
+    [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Property WHERE Property='$PropertyName'")
+    $null = &$InvokeMethod -Object $View -MethodName 'Execute'
+    [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
+    $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+    If ($Record) {
+		[__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("UPDATE Property SET Value='$PropertyValue' WHERE Property='$PropertyName'")
+	} Else {
+		[__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("INSERT INTO Property (Property, Value) VALUES ('$PropertyName','$PropertyValue')")
+	}
+	$null = &$InvokeMethod -Object $View -MethodName 'Execute'
+	$null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+}
+
 Try{
 	[__comobject]$Database = &$InvokeMethod -Object $Installer -MethodName 'OpenDatabase' -ArgumentList @($Path, $OpenReadMode)
 }
@@ -163,7 +184,7 @@ catch{
     Exit-script -ErrorOutput $ScriptError
 }
 Try {
-    [__comobject]$TempDatabase = &$InvokeMethod -Object $Installer -MethodName 'OpenDatabase' -ArgumentList @($TempMSIPath, 2)
+    [__comobject]$TempDatabase = &$InvokeMethod -Object $Installer -MethodName 'OpenDatabase' -ArgumentList @($TempMSIPath, $OpenWriteMode)
 }
 Catch {
     $ScriptError = "Error Opening Temporary Database"
@@ -179,12 +200,12 @@ Try {
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Feature (Feature,Feature_Parent,Title,Description,Display,Level,Directory_,Attributes) VALUES ('PwC_Branding_Registry','','PwC Branding Registry','Adds PwC branding to the package','0','1','INSTALLDIR','16')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Component (Component,ComponentId,Directory_,Attributes,Condition,KeyPath) VALUES ('PwC_Branding_Registry','{$(([GUID]::NewGuid()).ToString().ToUpper())}','TARGETDIR','4','','Branding.1')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Branding_Registry','PwC_Branding_Registry')"
-        if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {           
+        if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"Registry.idt")
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Export' -ArgumentList @("_Validation",$Temp,"_Validation.idt")
            Add-Content "$Temp\_Validation.idt" "$ValidationReg" | Out-Null
            $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"_Validation.idt")
-           $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Commit'
+           $addRegSequence = $true
         }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
         $null = &$InvokeMethod -Object $View -MethodName 'Execute'
@@ -218,7 +239,7 @@ Try {
         $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
         If (-Not $Record) {
-            $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Directory (Directory,Directory_Parent,DefaultDir) VALUES ('LocalAppDataFolder','TARGETDIR','.:APPLIC~1|Application Data')"  
+            $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO Directory (Directory,Directory_Parent,DefaultDir) VALUES ('LocalAppDataFolder','TARGETDIR','.:APPLIC~1|Application Data')"
         }
         Try {
             $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
@@ -229,11 +250,12 @@ Try {
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKLM')"
         $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO FeatureComponents (Feature_,Component_) VALUES ('PwC_Active_Setup','PwC_Active_Setup_HKCU')"
         if($Exclude) {
-           if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {           
+           if((&$GetProperty -Object $TempDatabase -PropertyName 'TablePersistent' -ArgumentList @("Registry")) -ne 1) {
               $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"Registry.idt")
               $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Export' -ArgumentList @("_Validation",$Temp,"_Validation.idt")
               Add-Content "$Temp\_Validation.idt" "$ValidationReg" | Out-Null
               $null = &$InvokeMethod -Object $TempDatabase -MethodName 'Import' -ArgumentList @($Temp,"_Validation.idt")
+              $addRegSequence = $true
           }
         }
         [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Registry")
@@ -244,35 +266,38 @@ Try {
         $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
         $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
     }
-} Catch { 
+} Catch {
     $ScriptError = "Error Adding ActiveSetup"
     Exit-script -ErrorOutput $ScriptError
 }
 Try {
-[scriptblock]$InsertProperty = {
-	Param (
-		[string]$PropertyName,
-		[string]$PropertyValue
-	)
-    [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM Property WHERE Property='$PropertyName'")
-    $null = &$InvokeMethod -Object $View -MethodName 'Execute'
-    [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
-    $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
-    $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
-    If ($Record) {
-		[__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("UPDATE Property SET Value='$PropertyValue' WHERE Property='$PropertyName'")
-	} Else {
-		[__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("INSERT INTO Property (Property, Value) VALUES ('$PropertyName','$PropertyValue')")
-	}
-	$null = &$InvokeMethod -Object $View -MethodName 'Execute'
-	$null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
-	$null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+    if($addRegSequence){
+        [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM InstallExecuteSequence WHERE Action='WriteRegistryValues'")
+	    $null = &$InvokeMethod -Object $View -MethodName 'Execute'
+        [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
+        If (-Not $Record) {
+            $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO InstallExecuteSequence (Action,Condition,Sequence) VALUES ('WriteRegistryValues','','5000')"
+        }
+        $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+        Try { $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record) } Catch { }
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        [__comobject]$View = &$InvokeMethod -Object $TempDatabase -MethodName 'OpenView' -ArgumentList @("SELECT * FROM InstallExecuteSequence WHERE Action='RemoveRegistryValues'")
+	    $null = &$InvokeMethod -Object $View -MethodName 'Execute'
+        [__comobject]$Record = &$InvokeMethod -Object $View -MethodName 'Fetch'
+        If (-Not $Record) {
+            $null = &$QuerytoDB -Database $TempDatabase -Query "INSERT INTO InstallExecuteSequence (Action,Condition,Sequence) VALUES ('RemoveRegistryValues','','2600')"
+        }
+        $null = &$InvokeMethod -Object $View -MethodName 'Close' -ArgumentList @()
+        $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($View)
+        Try { $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record) } Catch { }
     }
-} Catch { 
+} Catch { }
+Try {
+    $Properties.GetEnumerator() | ForEach-Object { &$InsertProperty -PropertyName $_.Key -PropertyValue $_.Value }
+} Catch {
     $ScriptError = "Error Adding Properties."
     Exit-script -ErrorOutput $ScriptError
 }
-$Properties.GetEnumerator() | ForEach-Object { &$InsertProperty -PropertyName $_.Key -PropertyValue $_.Value }
 
 Try {
     Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi"   -ErrorAction Stop -Force
@@ -280,7 +305,7 @@ Try {
     $ScriptError = $_.Exception.Message
     Exit-script -ErrorOutput $ScriptError
 }
-Try {
+Try {   
     $null = &$InvokeMethod -Object $TempDatabase -MethodName 'GenerateTransform' -ArgumentList @($Database,"$FinalPath\$($PackageName).mst")
     $null = &$InvokeMethod -Object $TempDatabase -MethodName 'CreateTransformSummaryInfo' -ArgumentList @($Database,"$FinalPath\$PackageName.mst", 0, 1)
 } Catch {
