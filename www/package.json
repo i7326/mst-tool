@@ -1,7 +1,7 @@
 {
   "name": "mst-tool",
   "productName": "MST Tool",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "dependencies": {
     "node-powershell": "^3.1.1",
     "rimraf": "^2.6.1"
