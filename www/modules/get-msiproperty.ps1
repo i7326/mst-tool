@@ -69,6 +69,12 @@ Try{
     if([bool]($TableProperties.psobject.Properties | Where-Object { @("pwcpackageName","pwclang","pwcrelease") -ccontains $_.Name.ToLower() })) {
         $TableProperties | Add-Member -MemberType NoteProperty -Name "Exclude" -Value $true
     }
+    [__comobject]$SummaryInfo = &$GetProperty -Object $Database -PropertyName 'SummaryInformation'
+    [string]$Template = &$GetProperty -Object $SummaryInfo -PropertyName 'Property' -ArgumentList @(7)
+    Try { $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($SummaryInfo) } Catch { }
+    if ($Template -match "64") {
+       $TableProperties | Add-Member -MemberType NoteProperty -Name "Arch" -Value "x64"
+    }
 } Catch { 
     $ScriptError = "Error Fetching Properties"
     Exit-script -ErrorOutput $ScriptError
@@ -80,4 +86,4 @@ Try {
      $null = [System.Runtime.Interopservices.Marshal]::ReleaseComObject($Record)
 } Catch { }
 
-    Write-Output($TableProperties | Select-object Manufacturer,ProductName,ProductVersion,ProductLanguage,Exclude | ConvertTo-Json -Compress)
+    Write-Output($TableProperties | Select-object Manufacturer,ProductName,Arch,ProductVersion,ProductLanguage,Exclude | ConvertTo-Json -Compress)

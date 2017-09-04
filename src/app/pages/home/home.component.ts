@@ -33,7 +33,9 @@ export class HomeComponent implements OnInit {
   generatePackageName(msi) {
     let packageName = '';
     for (let x in msi) {
+      if (msi[x]) {
       if(x != "Exclude") packageName += (x == 'ProductLanguage' ? msi[x].substr(0, 2).toUpperCase() : msi[x].replace(/[^._A-Za-z0-9]/g, '')) + '_';
+      }
     }
     return packageName;
   }

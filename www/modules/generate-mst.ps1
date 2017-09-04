@@ -22,8 +22,8 @@ Try {
 [string[]] $PropertyList = $PackageName.split('_')
 [hashtable] $Properties = if(-Not $Exclude){@{
 	PwCPackageName = $PackageName
-	PwCLang = $PropertyList[3]
-	PwCRelease = $PropertyList[4]
+	PwCLang = $PropertyList[$PropertyList.Length - 2]
+	PwCRelease = $PropertyList[$PropertyList.Length - 1]
 	ARPCOMMENTS = $PackageName
     ARPNOMODIFY = 1
     REBOOT = "ReallySuppress"
@@ -300,7 +300,7 @@ Try {
 }
 
 Try {
-    Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[4])").msi"   -ErrorAction Stop -Force
+    Copy-Item $Path -Destination "$FinalPath\$($PackageName -Replace "_$($PropertyList[$PropertyList.Length - 1])").msi"   -ErrorAction Stop -Force
 } Catch [Exception]{
     $ScriptError = $_.Exception.Message
     Exit-script -ErrorOutput $ScriptError
