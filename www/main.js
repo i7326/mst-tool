@@ -118,7 +118,7 @@ fs.mkdir(module_temp, () => {
       let filestream = fs.createWriteStream(tempname);
       filestream.write(fs.readFileSync(path.join(modules_dir, file)));
       filestream.end();
-      ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue`)
+      ps.addCommand(`New-Item -Path function:global: -Name ${name} -ItemType function -Value ([scriptblock]::create((Get-Content ${tempname} -Raw) -join [environment]::newline)) -Force -ErrorAction SilentlyContinue | Out-Null`)
       ps.invoke();
     });
   });
