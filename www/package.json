@@ -1,6 +1,6 @@
 {
-  "name": "mst-tool",
-  "productName": "MST Tool",
+  "name": "mst-creator-tool",
+  "productName": "MST Creator Tool",
   "version": "1.0.4",
   "dependencies": {
     "node-powershell": "^3.1.1",
