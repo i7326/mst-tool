@@ -1,11 +1,11 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { LoaderService } from './loader/loader.service';
+import { LoaderService } from '../components/loader/loader.service';
 import 'rxjs/add/observable/fromPromise';
 import 'rxjs/Rx';
 
 @Injectable()
-export class PSService {
+export class PowershellService {
   public shell = electron.remote.app.PowerShell();
 
   constructor(private loaderService: LoaderService, private zone: NgZone) { }

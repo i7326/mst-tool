@@ -1,2 +1,20 @@
 <app-loader></app-loader>
-<app-home></app-home>
+<router-outlet></router-outlet>
+
+
+<nav md-tab-nav-bar>
+  <a md-tab-link
+     routerLink="msi"
+     routerLinkActive="active"
+     #rla="routerLinkActive"
+     [active]="rla.isActive">
+    Create MSI
+  </a>
+  <a md-tab-link
+     routerLink="mst"
+     routerLinkActive="active"
+     #rla="routerLinkActive"
+     [active]="rla.isActive">
+    Create MST
+  </a>
+</nav>

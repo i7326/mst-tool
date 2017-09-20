@@ -2,28 +2,27 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from '@angular/material';
-import { FlexLayoutModule } from "@angular/flex-layout";
-import { PSService } from './ps.service';
+
 import { AppComponent } from './app.component';
-import { HomeComponent } from './pages/home/home.component';
-import { FormsModule } from '@angular/forms';
-import { LoaderService } from './loader/loader.service';
-import { LoaderComponent } from './loader/loader.component';
+import { AppRoutingModule } from './app-routing.module';
+import { MstModule } from './pages/mst/mst.module';
+import { MsiModule } from './pages/msi/msi.module';
+import { SharedModule } from './pages/shared/shared.module';
+
+
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    LoaderComponent,
-    HomeComponent
-  ],
+  declarations: [AppComponent],
   imports: [
+    AppRoutingModule,
+    MsiModule,
+    MstModule,
     BrowserModule,
-    FormsModule,
     BrowserAnimationsModule,
-    FlexLayoutModule,
-    MaterialModule
+    MaterialModule,
+    SharedModule.forRoot()
   ],
-  providers: [PSService, LoaderService],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

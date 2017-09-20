@@ -15,3 +15,17 @@ body {
  font-family: Roboto;
  font-size: 13px;
  }
+
+.mat-ink-bar {
+   top: 0 !important;
+   bottom:auto !important;
+ }
+
+.mat-tab-nav-bar, .mat-tab-header {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  border-bottom: none !important;
+}
+
+.mat-tab-nav-bar {
+  margin-top: 10px;
+}

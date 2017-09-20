@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { MdSnackBar } from '@angular/material';
-import { PSService } from '../../ps.service';
+import { PowershellService } from '../shared/service/powershell.service';
 import { remote, shell, ipcRenderer } from 'electron';
 import { FormControl } from '@angular/forms';
 import { join } from 'path';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  selector: 'app-msi',
+  templateUrl: './msi.component.html',
+  styleUrls: ['./msi.component.css']
 })
 
-export class HomeComponent implements OnInit {
+export class MsiComponent implements OnInit {
   Dialog = remote.dialog;
   Msi: any;
   MstPath: any = {};
@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
   HeaderText: string;
   TempPath: string = electron.remote.app.TempPath();
   BrowserWindow: any = remote.getCurrentWindow();
-  constructor(private PsShell: PSService, private Snackbar: MdSnackBar) { }
+  constructor(private PsShell: PowershellService, private Snackbar: MdSnackBar) { }
 
   ngOnInit() {
     this.HeaderText = this.HeaderTextArray[0];
