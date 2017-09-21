@@ -1,20 +1,13 @@
 <app-loader></app-loader>
 <router-outlet></router-outlet>
 
-
 <nav md-tab-nav-bar>
-  <a md-tab-link
-     routerLink="msi"
-     routerLinkActive="active"
-     #rla="routerLinkActive"
-     [active]="rla.isActive">
-    Create MSI
-  </a>
-  <a md-tab-link
-     routerLink="mst"
-     routerLinkActive="active"
-     #rla="routerLinkActive"
-     [active]="rla.isActive">
-    Create MST
+  <a md-tab-link *ngFor="let tab of tabs"
+    [routerLink]="[tab.path]"
+    routerLinkActive
+    #rla="routerLinkActive"
+    [routerLinkActiveOptions]="{exact: true}"
+    [active]="rla.isActive">
+    {{ tab.label }}
   </a>
 </nav>
