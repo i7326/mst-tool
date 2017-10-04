@@ -6,30 +6,30 @@
     <div fxLayout="row wrap" class="main">
       <div fxFlex="70%">
         <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Product Name" disabled value="{{Msi.ProductName}}">
+          <input mdInput placeholder="Product Name" value="{{Msi.ProductName}}">
         </md-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
         <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Version" disabled value="{{Msi.ProductVersion}}">
+          <input mdInput placeholder="Version" value="{{Msi.ProductVersion}}">
         </md-input-container>
       </div>
       <div fxFlex="70%">
         <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Manufacturer" disabled value="{{Msi.Manufacturer}}">
+          <input mdInput placeholder="Manufacturer" value="{{Msi.Manufacturer}}">
         </md-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
         <md-input-container class="disable-select">
-          <input mdInput placeholder="Language" disabled value="{{Msi.ProductLanguage}}">
+          <input mdInput placeholder="Language" value="{{Msi.ProductLanguage}}">
         </md-input-container>
       </div>
       <div fxFlex="70%">
         <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Installer" disabled value="{{Filename}}">
+          <input mdInput placeholder="Source Files" disabled value="{{Filename}}">
         </md-input-container>
       </div>
-      <div fxFlex="30%"><a md-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select MSI</a></div>
+      <div fxFlex="30%"><a md-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select Source Directory</a></div>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
         <md-input-container class="full-width">
           <input mdInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">

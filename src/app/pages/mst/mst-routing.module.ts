@@ -6,7 +6,7 @@ import { MstComponent } from './mst.component';
   imports: [
     RouterModule.forChild([
       {path: '', redirectTo: 'mst', pathMatch: 'full' },
-      { path: 'mst', component: MstComponent }
+      { path: 'mst', component: MstComponent, data: { state: 'mst' } }
     ])
   ],
   exports: [RouterModule]

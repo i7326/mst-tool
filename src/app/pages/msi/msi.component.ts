@@ -5,6 +5,7 @@ import { remote, shell, ipcRenderer } from 'electron';
 import { FormControl } from '@angular/forms';
 import { join } from 'path';
 
+
 @Component({
   selector: 'app-msi',
   templateUrl: './msi.component.html',

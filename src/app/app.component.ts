@@ -10,4 +10,8 @@ export class AppComponent {
       { path: 'msi', label: 'Create MSI' },
       { path: 'mst', label: 'Create MST' }
     ]
+
+    getState(outlet) {
+      return outlet.activatedRouteData.state;
+  }
 }
