@@ -13,7 +13,7 @@
   z-index: 9999;
 }
 
-md-progress-bar {
+mat-progress-bar {
   top: 411px;
   width: 97.4%;
   left: 1.3%;

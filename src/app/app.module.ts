@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule, MdTableModule } from '@angular/material';
-
+import { MatTabsModule } from '@angular/material';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MstModule } from './pages/mst/mst.module';
@@ -19,8 +18,7 @@ import { SharedModule } from './pages/shared/shared.module';
     MstModule,
     BrowserModule,
     BrowserAnimationsModule,
-    MaterialModule,
-    MdTableModule,
+    MatTabsModule,
     SharedModule.forRoot()
   ],
   providers: [],

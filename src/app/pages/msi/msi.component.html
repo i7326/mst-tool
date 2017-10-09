@@ -1,50 +1,50 @@
 <div class="header disable-select">
   <h1>{{HeaderText}} - For MSI</h1>
 </div>
-<md-card>
+<mat-card>
   <div class="container">
     <div fxLayout="row wrap" class="main">
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Product Name" value="{{Msi.ProductName}}">
-        </md-input-container>
+        <mat-input-container class="width-90-pt disable-select">
+          <input matInput placeholder="Product Name" value="{{Msi.ProductName}}">
+        </mat-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
-        <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Version" value="{{Msi.ProductVersion}}">
-        </md-input-container>
+        <mat-input-container class="width-90-pt disable-select">
+          <input matInput placeholder="Version" value="{{Msi.ProductVersion}}">
+        </mat-input-container>
       </div>
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Manufacturer" value="{{Msi.Manufacturer}}">
-        </md-input-container>
+        <mat-input-container class="width-90-pt disable-select">
+          <input matInput placeholder="Manufacturer" value="{{Msi.Manufacturer}}">
+        </mat-input-container>
       </div>
       <div fxFlex="30%" fxLayoutAlign="end center">
-        <md-input-container class="disable-select">
-          <input mdInput placeholder="Language" value="{{Msi.ProductLanguage}}">
-        </md-input-container>
+        <mat-input-container class="disable-select">
+          <input matInput placeholder="Language" value="{{Msi.ProductLanguage}}">
+        </mat-input-container>
       </div>
       <div fxFlex="70%">
-        <md-input-container class="width-90-pt disable-select">
-          <input mdInput placeholder="Destination Directory" disabled value="{{Filename}}">
-        </md-input-container>
+        <mat-input-container class="width-90-pt disable-select">
+          <input matInput placeholder="Destination Directory" disabled value="{{Filename}}">
+        </mat-input-container>
       </div>
-      <div fxFlex="30%"><a md-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select INSTALLDIR</a></div>
+      <div fxFlex="30%"><a mat-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select INSTALLDIR</a></div>
       <msi-directory fxFlex="grow" fxLayout="row wrap"></msi-directory>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
-        <md-input-container class="full-width">
-          <input mdInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName.bind(this)">
-          <md-error>Invalid Package Name</md-error>
-        </md-input-container>
+        <mat-input-container class="full-width">
+          <input matInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName">
+          <mat-error>Invalid Package Name</mat-error>
+        </mat-input-container>
       </div>
       <div fxFlex="40%">
-        <md-checkbox [(ngModel)]="Msi.activeSetup" [disabled]="!Filename || !Msi.PackageName || validatePackageName()" class="active-setup disable-select">Add Active Setup to package</md-checkbox>
+        <mat-checkbox [(ngModel)]="Msi.activeSetup" [disabled]="!Filename || !Msi.PackageName || invalidPackageName" class="active-setup disable-select">Add Active Setup to package</mat-checkbox>
       </div>
       <div fxFlex="60%" fxLayoutAlign="end space-between">
-        <md-checkbox [(ngModel)]="Msi.checkBoxValue" [disabled]="!Filename || !Msi.PackageName || validatePackageName()" [checked]="!validatePackageName() && Msi.checkBoxValue && Msi.PackageName" (change)="checkboxFunction($event)"  class="proceed-checkbox disable-select">Proceed to create Installer</md-checkbox>
+        <mat-checkbox [(ngModel)]="Msi.checkBoxValue" [disabled]="!Filename || !Msi.PackageName || invalidPackageName" [checked]="!invalidPackageName && Msi.checkBoxValue && Msi.PackageName" (change)="checkboxFunction($event)"  class="proceed-checkbox disable-select">Proceed to create Installer</mat-checkbox>
       </div>
       <div fxFlex="50%" fxLayoutAlign="start space-between"><img src="assets/images/logo.png" height="50px" class="disable-select"/></div>
-      <div fxFlex="50%" fxLayoutAlign="end center"><a md-raised-button color="primary" (click)="generateMST(Filename,Msi.PackageName,Msi.checkBoxValue)" [disabled]="!Msi.checkBoxValue || !Msi.PackageName || validatePackageName()">Generate Installer</a></div>
+      <div fxFlex="50%" fxLayoutAlign="end center"><a mat-raised-button color="primary" (click)="generateMST(Filename,Msi.PackageName,Msi.checkBoxValue)" [disabled]="!Msi.checkBoxValue || !Msi.PackageName || invalidPackageName">Generate Installer</a></div>
     </div>
   </div>
-</md-card>
+</mat-card>

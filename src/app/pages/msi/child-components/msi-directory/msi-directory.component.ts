@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { DataSource } from '@angular/cdk';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
-import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
+import {MatDialog, MatDialogConfig, MatDialogRef} from '@angular/material';
 
 @Component({
   selector: 'add-directory-dialog',
@@ -10,11 +9,11 @@ import {MdDialog, MdDialogConfig, MdDialogRef} from '@angular/material';
   <h2>Hi! I am the first dialog!</h2>
   <p>Test param: {{ param1 }}</p>
   <p>I'm working on a POC app, and I'm trying get the MdDialog component working. Does any one have a working example of what to pass to the MdDialog open method?</p>
-  <button md-raised-button (click)="dialogRef.close()">Close dialog</button>`
+  <button mat-raised-button (click)="dialogRef.close()">Close dialog</button>`
 })
 export class AddDirectoryDialog {
   param1: string;
-  constructor(public dialogRef: MdDialogRef<any>) { }
+  constructor(public dialogRef: MatDialogRef<any>) { }
 }
 
 @Component({
@@ -24,16 +23,16 @@ export class AddDirectoryDialog {
 })
 
 export class MsiDirectoryComponent {
-constructor(private dialog: MdDialog) { }
+constructor(private dialog: MatDialog) { }
 
   openDialog(){
-    let dialogRef: MdDialogRef<AddDirectoryDialog>;
+    let dialogRef: MatDialogRef<AddDirectoryDialog>;
     dialogRef = this.dialog.open(AddDirectoryDialog);
     return dialogRef.afterClosed();
   }
 
   displayedColumns = ['position', 'name', 'weight', 'symbol'];
-  dataSource = new ExampleDataSource();
+  //dataSource = new ExampleDataSource();
 }
 
 export interface Element {
@@ -66,11 +65,12 @@ const data: Element[] = [
   {position: 20, name: 'Calcium', weight: 40.078, symbol: 'Ca'},
 ];
 
-export class ExampleDataSource extends DataSource<any> {
-  /** Connect function called by the table to retrieve one stream containing the data to render. */
+/**export class ExampleDataSource extends DataSource<any> {
+  /** Connect function called by the table to retrieve one stream containing the data to render.
   connect(): Observable<Element[]> {
     return Observable.of(data);
   }
 
   disconnect() {}
 }
+**/

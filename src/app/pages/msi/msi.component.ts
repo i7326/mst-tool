@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MdSnackBar } from '@angular/material';
+import { MatSnackBar, ErrorStateMatcher } from '@angular/material';
 import { PowershellService } from '../shared/service/powershell.service';
 import { remote, shell, ipcRenderer } from 'electron';
 import { FormControl } from '@angular/forms';
@@ -21,9 +21,12 @@ export class MsiComponent implements OnInit {
   HeaderText: string;
   TempPath: string = electron.remote.app.TempPath();
   BrowserWindow: any = remote.getCurrentWindow();
-  constructor(private PsShell: PowershellService, private Snackbar: MdSnackBar) { }
+  invalidPackageName: boolean;
+
+  constructor(private PsShell: PowershellService, private Snackbar: MatSnackBar) { }
 
   ngOnInit() {
+    this.Snackbar.dismiss();
     this.HeaderText = this.HeaderTextArray[0];
     this.Msi = {
       checkBoxValue: false
@@ -62,7 +65,7 @@ export class MsiComponent implements OnInit {
   }
 
   packageNameTextbox() {
-    if (this.validatePackageName()) this.Msi.checkBoxValue = false;
+    if (this.invalidPackageName) this.Msi.checkBoxValue = false;
   }
 
   browseMsi() {
@@ -107,7 +110,10 @@ export class MsiComponent implements OnInit {
     });
   }
 
-  validatePackageName(): boolean {
-    if (this.Msi.PackageName) return !!(this.Msi.PackageName.match('[^._A-Za-z0-9]'));
-  }
+  validatePackageName: ErrorStateMatcher = {
+    isErrorState: (control: FormControl | null) => {
+      if (this.Msi.PackageName)  this.invalidPackageName = !!(this.Msi.PackageName.match('[^._A-Za-z0-9]'));
+        return this.invalidPackageName;
+    }
+  };
 }

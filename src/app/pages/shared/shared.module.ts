@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './components/loader/loader.service';
 import { PowershellService } from './service/powershell.service';
-import { MaterialModule } from '@angular/material';
+import { MatProgressBarModule } from '@angular/material';
 
 
 /**
@@ -11,7 +11,7 @@ import { MaterialModule } from '@angular/material';
  */
 
 @NgModule({
-  imports: [CommonModule,MaterialModule],
+  imports: [CommonModule, MatProgressBarModule],
   declarations: [LoaderComponent],
   exports: [LoaderComponent]
 })

@@ -2,8 +2,8 @@
 <main>
   <router-outlet #o="outlet"></router-outlet>
 </main>
-<nav md-tab-nav-bar>
-  <a md-tab-link *ngFor="let tab of tabs"
+<nav mat-tab-nav-bar>
+  <a mat-tab-link *ngFor="let tab of tabs"
     [routerLink]="[tab.path]"
     routerLinkActive
     #rla="routerLinkActive"
