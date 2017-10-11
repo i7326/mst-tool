@@ -30,7 +30,7 @@
         </mat-input-container>
       </div>
       <div fxFlex="30%"><a mat-raised-button color="primary" class="select-msi-button" (click)="browseMsi()">Select INSTALLDIR</a></div>
-      <msi-directory fxFlex="grow" fxLayout="row wrap"></msi-directory>
+      <msi-files fxFlex="grow" fxLayout="row wrap"></msi-files>
       <div fxFlex="grow" fxLayoutAlign="space-around center">
         <mat-input-container class="full-width">
           <input matInput placeholder="Package Name" [disabled]="!Filename || !Msi.PackageName" [(ngModel)]="Msi.PackageName" (change)="packageNameTextbox()" [errorStateMatcher]="validatePackageName">

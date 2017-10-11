@@ -1,15 +1,16 @@
 import { NgModule } from '@angular/core';
-import { MatInputModule, MatButtonModule, MatDialogModule, MatTableModule } from '@angular/material';
+import { MatInputModule, MatButtonModule, MatDialogModule, MatTableModule, MatCheckboxModule, MatPaginatorModule } from '@angular/material';
 import { FlexLayoutModule } from "@angular/flex-layout";
-import { MsiDirectoryComponent,AddDirectoryDialog } from './msi-directory/msi-directory.component';
+import { MsiFilesComponent,AddFilesDialog } from './msi-files/msi-files.component';
+import { TreeModule } from 'angular-tree-component';
 
 @NgModule({
-  imports: [FlexLayoutModule, MatInputModule, MatDialogModule, MatButtonModule, MatTableModule],
-  declarations: [MsiDirectoryComponent, AddDirectoryDialog],
-  exports: [MsiDirectoryComponent, AddDirectoryDialog],
+  imports: [FlexLayoutModule, MatInputModule, MatDialogModule, MatButtonModule, MatTableModule, MatCheckboxModule, MatPaginatorModule, TreeModule],
+  declarations: [MsiFilesComponent, AddFilesDialog],
+  exports: [MsiFilesComponent, AddFilesDialog],
   providers: [],
   entryComponents: [
-        AddDirectoryDialog,
+        AddFilesDialog,
     ]
 })
 
