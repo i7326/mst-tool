@@ -12,7 +12,11 @@ import 'rxjs/add/operator/map';
 @Component({
   selector: 'add-files-dialog',
   template: `
-  <tree-root [nodes]="nodes"></tree-root>
+  <tree-root [nodes]="nodes" [options]="customTemplateStringOptions" (activate)="onEvent($event)"
+    (onActiveChanged)="onEvent($event)"
+    (onFocus)="onEvent($event)"
+    (onBlur)="onEvent($event)">
+      </tree-root>
 
 
   <h2>Hi! I am the first dialog!</h2>
@@ -21,23 +25,70 @@ import 'rxjs/add/operator/map';
   <button mat-raised-button (click)="dialogRef.close()">Close dialog</button>`
 })
 
-export class AddFilesDialog {
+export class AddFilesDialog implements OnInit {
   param1: string;
-
+  onEvent($event) {
+    alert("Test");
+    console.log($event)
+  }
   nodes = [
     {
-      id: 1,
+      expanded: true,
       name: 'Destination Computer',
-      isExpandedField: 'expanded',
+      subTitle: 'the root',
       children: [
-        { id: 2, name: 'My Documents', children: [{ id: 3, name: 'My Pictures'}] },
-        { id: 4, name: 'Program Files', children: [{ id: 5, name: 'Common Files'}]  }
+        {
+          name: 'My Documents', children: [
+            { name: 'My Pictures' }
+          ]
+        },
+        {
+          name: 'Program Files', children: [
+            { name: 'Common Files' }
+          ]
+        },
+        {
+          name: 'Windows', children: [
+            {
+              name: 'Profiles', children: [
+                {
+                  name: 'All Users', children: [
+                    { name: 'Application Data' },
+                  ]
+                },
+                { name: 'Desktop' },
+                {
+                  name: 'Local Settings', children: [
+                    { name: 'Application Data' },
+                  ]
+                },
+              ]
+            },
+            { name: 'Temp' }
+          ]
+        },
       ]
     }
   ];
 
 
   constructor(public dialogRef: MatDialogRef<any>) { }
+
+
+  customTemplateStringOptions = {
+    //displayField: 'subTitle',
+    isExpandedField: 'expanded',
+    idField: 'uuid',
+    nodeHeight: 23,
+    allowDrag: true,
+    useVirtualScroll: true
+  }
+
+  ngOnInit() {
+    console.log('test');
+  }
+
+
 }
 
 @Component({
@@ -47,16 +98,16 @@ export class AddFilesDialog {
 })
 
 export class MsiFilesComponent implements OnInit {
-  size:number = data.length;
+  size: number = data.length;
 
   constructor(private dialog: MatDialog) { }
 
-  ngOnInit(){
-      console.log();
+  ngOnInit() {
+    console.log();
   }
 
 
-  openDialog(){
+  openDialog() {
     let dialogRef: MatDialogRef<AddFilesDialog>;
     dialogRef = this.dialog.open(AddFilesDialog);
     return dialogRef.afterClosed();
@@ -67,17 +118,17 @@ export class MsiFilesComponent implements OnInit {
 }
 
 export interface Source {
-  id:number;
+  id: number;
   dest: string;
   source: string;
   symbol: string;
 }
 
 const data: Source[] = [
-  {id: 1, dest: 'Hydrogen', source: '1.0079', symbol: 'H'},
-  {id: 2, dest: 'Helium', source: '4.0026', symbol: 'He'},
-  {id: 3, dest: 'Lithium', source: '6.941', symbol: 'Li'},
-  {id: 4, dest: 'Beryllium', source: '9.0122', symbol: 'Be'}
+  { id: 1, dest: 'Hydrogen', source: '1.0079', symbol: 'H' },
+  { id: 2, dest: 'Helium', source: '4.0026', symbol: 'He' },
+  { id: 3, dest: 'Lithium', source: '6.941', symbol: 'Li' },
+  { id: 4, dest: 'Beryllium', source: '9.0122', symbol: 'Be' }
 ];
 
 export class SourceFilesDatabase {
@@ -90,5 +141,5 @@ export class ExampleDataSource extends DataSource<any> {
     return Observable.of(data);
   }
 
-  disconnect() {}
+  disconnect() { }
 }
