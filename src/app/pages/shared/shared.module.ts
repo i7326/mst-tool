@@ -2,8 +2,10 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './components/loader/loader.service';
+import { TreeComponent } from './components/tree/tree.component';
 import { PowershellService } from './service/powershell.service';
 import { MatProgressBarModule } from '@angular/material';
+import { TreeModule } from 'angular-tree-component';
 
 
 /**
@@ -11,9 +13,9 @@ import { MatProgressBarModule } from '@angular/material';
  */
 
 @NgModule({
-  imports: [CommonModule, MatProgressBarModule],
-  declarations: [LoaderComponent],
-  exports: [LoaderComponent]
+  imports: [CommonModule, MatProgressBarModule, TreeModule],
+  declarations: [LoaderComponent, TreeComponent],
+  exports: [LoaderComponent, TreeComponent]
 })
 export class SharedModule {
   static forRoot(): ModuleWithProviders {

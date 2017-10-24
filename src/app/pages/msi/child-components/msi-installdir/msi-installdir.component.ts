@@ -12,6 +12,13 @@ import 'rxjs/add/operator/map';
 @Component({
   selector: 'add-files-dialog',
   template: `
+  <tree-root [nodes]="nodes" [options]="customTemplateStringOptions" (activate)="onEvent($event)"
+    (onActiveChanged)="onEvent($event)"
+    (onFocus)="onEvent($event)"
+    (onBlur)="onEvent($event)">
+      </tree-root>
+
+
   <h2>Hi! I am the first dialog!</h2>
   <p>Test param: {{ param1 }}</p>
   <p>I'm working on a POC app, and I'm trying get the MdDialog component working. Does any one have a working example of what to pass to the MdDialog open method?</p>
@@ -21,7 +28,12 @@ import 'rxjs/add/operator/map';
 export class AddFilesDialog implements OnInit {
   param1: string;
 
+
+
   constructor(public dialogRef: MatDialogRef<any>) { }
+
+
+
 
   ngOnInit() {
     console.log('test');
@@ -31,9 +43,8 @@ export class AddFilesDialog implements OnInit {
 }
 
 @Component({
-  selector: 'msi-files',
-  templateUrl: './msi-files.component.html',
-  styleUrls: ['./msi-files.component.css']
+  selector: 'msi-installdir',
+  templateUrl: './msi-installdir.component.html'
 })
 
 export class MsiFilesComponent implements OnInit {
